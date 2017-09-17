@@ -9,11 +9,11 @@ compiler:
 notifications:
     email:
         recipients:
-            - su2code-dev@lists.stanford.edu
+            - phewitt04@qub.ac.uk
   
 branches:
     only:
-        - develop
+        - master
 
 env:
     global:
