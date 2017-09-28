@@ -3113,6 +3113,7 @@ void CSurfaceMovement::SetSurface_Deformation(CGeometry *geometry, CConfig *conf
            (config->GetDesign_Variable(0) == TRANSLATION) ||
            (config->GetDesign_Variable(0) == SCALE) ||
            (config->GetDesign_Variable(0) == HICKS_HENNE) ||
+           (config->GetDesign_Variable(0) == CST) ||
            (config->GetDesign_Variable(0) == SURFACE_BUMP) ||
            (config->GetDesign_Variable(0) == ANGLE_OF_ATTACK)) {
     
@@ -3135,6 +3136,15 @@ void CSurfaceMovement::SetSurface_Deformation(CGeometry *geometry, CConfig *conf
       }
     }
     
+    /*--- Apply the design variables to the control point position ---*/
+    
+    for (iDV = 0; iDV < config->GetnDV(); iDV++) {
+      switch ( config->GetDesign_Variable(iDV) ) {
+        case CST :  SetCST(geometry, config, iDV, false); break;
+      }
+    }
+
+
     /*--- Apply the design variables to the control point position ---*/
 
     for (iDV = 0; iDV < config->GetnDV(); iDV++) {
