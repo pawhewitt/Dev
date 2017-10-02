@@ -5536,7 +5536,7 @@ void CSurfaceMovement::SetSurface_Bump(CGeometry *boundary, CConfig *config, uns
 void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned short iDV, bool ResetDef) {
 	unsigned long iVertex;
 	unsigned short iMarker;
-	su2double VarCoord[3] = {0.0,0.0,0.0}, VarCoord_[3] = {0.0,0.0,0.0}, *Coord_, *Normal_, CST,
+	su2double VarCoord[3] = {0.0,0.0,0.0}, VarCoord_[3] = {0.0,0.0,0.0}, *Coord_, *Normal_,CST,
   	Coord[3] = {0.0,0.0,0.0}, Normal[3] = {0.0,0.0,0.0},
   	TPCoord[2] = {0.0, 0.0}, LPCoord[2] = {0.0, 0.0}, Distance, Chord, AoA, ValCos, ValSin;
   
@@ -5633,31 +5633,45 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
 	/*--- Perform multiple airfoil deformation ---*/
   	
   	/* Changes P.Hewitt - Start */
-	su2double dv = config->GetDV_Value(iDV);
 	/* Order of Polynomial, assumes same order for both surfaces */
  	su2double BPO=((config->GetnDV())/2)-1;
     cout<<"BPO is "<<BPO<<endl;
-    /* Get Weights */
-    su2double A[BPO+1];
+    /* Get Weights  and add design variable value to the associated weight*/
+    su2double A[config->GetnDV()/2];
+
+    // if (upper){
+    // 	cout<<"Old Param = "<<config->GetParamDV(iDV,1);
+    // 	config->GetParamDV(iDV,1)=config->GetParamDV(iDV,1)+config->GetDV_Value(iDV,1);
+    // 	cout<<"  New Param = "<<config->GetParamDV(iDV,1)<<endl;
+    // }else{
+    // 	cout<<"Old Param = "<<config->GetParamDV(iDV,1);
+    // 	config->GetParamDV(iDV,1)=config->GetParamDV(iDV,1)-config->GetDV_Value(iDV,1);
+    // 	cout<<"  New Param = "<<config->GetParamDV(iDV,1)<<endl;
+    // }
+
+    su2double iparam;
     for (int i=0,j=0;i<config->GetnDV();i++){
-    	if (upper && config->GetParamDV(i,0)==0{
+    	if ((upper) && (config->GetParamDV(i,0)==0)){
     		A[j]=config->GetParamDV(i,1);
+    		if (i==iDV){
+    			A[j]+=config->GetDV_Value(iDV);
+    		}
     		j++;       		
-    	}else if (lower && config->GetParamDV(i,0)==1{
+    	}else if ((!upper) && (config->GetParamDV(i,0)==1)){
     		A[j]=config->GetParamDV(i,1);
+    		if (i==iDV){
+    			A[j]-=config->GetDV_Value(iDV);
+    		}
     		j++;
     	}
     	cout<<"A"<<j<<" is "<<A[j]<<endl;
     }
     /* Compute the Binomial Coefficient */
-    su2double K[BPO+1];
+    su2double K[config->GetnDV()/2];
 		for(int i=0;i<BPO+1;i++){
-			K[i] = Factorial(BPO)/(Factorial(i)*Factorial(BPO-(i)));/*Binomial Coefficient */
+			K[i] = Factorial(BPO)/(Factorial(i)*Factorial(BPO-i));/*Binomial Coefficient */
 		cout<<"K"<<i<<" is "<<K[i]<<endl;
 		}
-
-	
-
 
 	if (config->GetParamDV(iDV, 0) == NO) { upper = false;}
 	if (config->GetParamDV(iDV, 0) == YES) { upper = true;}
@@ -5675,32 +5689,37 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
         /*--- The CST functions should be applied to a basic airfoil without AoA,
          and unitary chord, a tranformation is required ---*/
 
-        ValCos = cos(AoA*PI_NUMBER/180.0);
-        ValSin = sin(AoA*PI_NUMBER/180.0);
-        
-        Coord[0] = Coord_[0]*ValCos - Coord_[1]*ValSin;
-        Coord[0] = max(0.0, Coord[0]); // Coord x should be always positive
-        Coord[1] = Coord_[1]*ValCos + Coord_[0]*ValSin;
-        
-        Normal[0] = Normal_[0]*ValCos - Normal_[1]*ValSin;
-        Normal[1] = Normal_[1]*ValCos + Normal_[0]*ValSin;
-	
-        /*--- Start Direct CST computation --- */
+		        ValCos = cos(AoA*PI_NUMBER/180.0);
+		        ValSin = sin(AoA*PI_NUMBER/180.0);
+		        
+		        Coord[0] = Coord_[0]*ValCos - Coord_[1]*ValSin;
+		        Coord[0] = max(0.0, Coord[0]); // Coord x should be always positive
+		        Coord[1] = Coord_[1]*ValCos + Coord_[0]*ValSin;
+		        
+		        Normal[0] = Normal_[0]*ValCos - Normal_[1]*ValSin;
+		        Normal[1] = Normal_[1]*ValCos + Normal_[0]*ValSin;
+			
+		        /*--- Start Direct CST computation --- */
+		        /* Evaluate the Class function */
+		        su2double n1, n2, Cl;       
+				n1 = 0.5;
+				n2 = 1.0;
 
+				Cl=pow(Coord[0],n1)*pow((1-Coord[0]),n2);
 
+				/* Evaluate the Shape Functions */
+				su2double Sc,S;
+				for (int i=0;i<=BPO+1;i++){
+					Sc=(K[i]*pow(Coord[0],i))*pow((1-Coord[0]),(BPO-i));
+					S+=Sc*A[i];
+				}
 
-		su2double n1, n2;       
-		n1 = 0.5;
-		n2 = 1.0;
- 
-		/*--- Upper and lower surface change in coordinates based on CST equations by Kulfan et. al (www.brendakulfan.com/docs/CST3.pdf)  ---*/
-        	 CST=pow(Coord[0],N1)*pow((1-Coord[0]), N2) * fact_n/(fact_cst*(fact_cst_n)) * pow(Coord[0], KulfanNum) * pow((1-Coord[0]), (maxKulfanNum-(KulfanNum)));
+				/* Evaluate the CST */
+				CST=Cl*S;
 
-		if (( upper) && (Normal[1] > 0)) { VarCoord[1] =  Ampl*fk; }
-
-        if ((!upper) && (Normal[1] < 0)) { VarCoord[1] =  Ampl*fk; }
-
-	
+				VarCoord[1]=sqrt(pow((Coord[1]-CST),2));
+				cout<<"VarCoord= "<<VarCoord[1]<<endl;
+				
 	}
 
 
@@ -5718,16 +5737,15 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
       			boundary->vertex[iMarker][iVertex]->AddVarCoord(VarCoord_);
 		}
 	}
-	int CSurfaceMovement::Factorial (int n) {
- 	
- 		if ( n > 1 ) n = n*Factorial(n-1);
- 		if ( n == 0 ) n = 1;
- 	
- 	return n;
- 	}
+}
 
+int CSurfaceMovement::Factorial (int n) {
+
+	if ( n > 1 ) n = n*Factorial(n-1);
+	if ( n == 0 ) n = 1;
+
+return n;
 /* Changes P.Hewitt -end-*/
-
 
 }
 
