@@ -662,7 +662,7 @@ def get_gradFileFormat(grad_type,plot_format,kindID,special_cases=[]):
         header.append(r',"Loc_Start","Loc_End","Loc_Max"')
         write_format.append(r', %s, %s, %s')
     elif kindID == "CST"        :
-        header.append(r',"Up/Down","Kulfan number", "Total Kulfan numbers"')
+        header.append(r',"Up/Down","Weight""')
         write_format.append(r', %s, %s', '%s')
     elif kindID == "FAIRING"       :
         header.append(r',"ControlPoint_Index","Theta_Disp","R_Disp"')
