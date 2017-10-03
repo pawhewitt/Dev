@@ -5634,10 +5634,18 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
   	
   	/* Changes P.Hewitt - Start */
 	/* Order of Polynomial, assumes same order for both surfaces */
+
+
+	if (config->GetParamDV(iDV, 0) == NO) { upper = false;}
+	if (config->GetParamDV(iDV, 0) == YES) { upper = true;}
+
  	su2double BPO=((config->GetnDV())/2)-1;
     cout<<"BPO is "<<BPO<<endl;
     /* Get Weights  and add design variable value to the associated weight*/
     su2double A[config->GetnDV()/2];
+    /* Temp Code */
+    cout<<"Current Param number = "<<iDV<<endl;
+    cout<<"Upper Surface = "<<upper<<endl;
 
     // if (upper){
     // 	cout<<"Old Param = "<<config->GetParamDV(iDV,1);
@@ -5651,20 +5659,24 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
 
     su2double iparam;
     for (int i=0,j=0;i<config->GetnDV();i++){
-    	if ((upper) && (config->GetParamDV(i,0)==0)){
+    	if ((upper) && (config->GetParamDV(i,0)==1)){
     		A[j]=config->GetParamDV(i,1);
-    		if (i==iDV){
-    			A[j]+=config->GetDV_Value(iDV);
-    		}
-    		j++;       		
-    	}else if ((!upper) && (config->GetParamDV(i,0)==1)){
+    		// if (i==iDV){
+    		// 	A[j]+=config->GetDV_Value(iDV);
+    		// }
+    		cout<<"A"<<j<<" is "<<A[j]<<endl;
+    		j++;
+
+    	}else if ((!upper) && (config->GetParamDV(i,0)==0)){
     		A[j]=config->GetParamDV(i,1);
-    		if (i==iDV){
-    			A[j]-=config->GetDV_Value(iDV);
-    		}
+    		// if (i==iDV){
+    		// 	A[j]-=config->GetDV_Value(iDV);
+    		// 	cout<<"A"<<j<<" is "<<A[j]<<endl;
+    		// }
+    		cout<<"A"<<j<<" is "<<A[j]<<endl;
     		j++;
     	}
-    	cout<<"A"<<j<<" is "<<A[j]<<endl;
+    	
     }
     /* Compute the Binomial Coefficient */
     su2double K[config->GetnDV()/2];
@@ -5673,9 +5685,13 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
 		cout<<"K"<<i<<" is "<<K[i]<<endl;
 		}
 
-	if (config->GetParamDV(iDV, 0) == NO) { upper = false;}
-	if (config->GetParamDV(iDV, 0) == YES) { upper = true;}
-  
+  	/* Start Temp Code */
+	//cout<<"Cl\t St\t CST\t VarCoord\t"<<endl;
+
+
+
+	/* End Temp Code */
+
 	for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
 
 		for (iVertex = 0; iVertex < boundary->nVertex[iMarker]; iVertex++) {
@@ -5706,19 +5722,22 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
 				n2 = 1.0;
 
 				Cl=pow(Coord[0],n1)*pow((1-Coord[0]),n2);
-
 				/* Evaluate the Shape Functions */
-				su2double Sc,S;
-				for (int i=0;i<=BPO+1;i++){
+				su2double Sc,S=0;
+				for (int i=0;i<BPO+1;i++){
 					Sc=(K[i]*pow(Coord[0],i))*pow((1-Coord[0]),(BPO-i));
-					S+=Sc*A[i];
+					S=S+(Sc*A[i]);
+					cout<<"Sc"<<i<<" is "<<Sc<<endl;
 				}
 
 				/* Evaluate the CST */
+				
 				CST=Cl*S;
 
 				VarCoord[1]=sqrt(pow((Coord[1]-CST),2));
-				cout<<"VarCoord= "<<VarCoord[1]<<endl;
+				/* Temp Code */
+				cout<<"Cl= "<<Cl<<" S= "<<S<<" CST= "<<CST<<" VarCoord= "<<VarCoord[1]<<endl;
+				
 				
 	}
 
