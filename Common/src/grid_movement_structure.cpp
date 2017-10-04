@@ -5647,32 +5647,22 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
     cout<<"Current Param number = "<<iDV<<endl;
     cout<<"Upper Surface = "<<upper<<endl;
 
-    // if (upper){
-    // 	cout<<"Old Param = "<<config->GetParamDV(iDV,1);
-    // 	config->GetParamDV(iDV,1)=config->GetParamDV(iDV,1)+config->GetDV_Value(iDV,1);
-    // 	cout<<"  New Param = "<<config->GetParamDV(iDV,1)<<endl;
-    // }else{
-    // 	cout<<"Old Param = "<<config->GetParamDV(iDV,1);
-    // 	config->GetParamDV(iDV,1)=config->GetParamDV(iDV,1)-config->GetDV_Value(iDV,1);
-    // 	cout<<"  New Param = "<<config->GetParamDV(iDV,1)<<endl;
-    // }
-
     su2double iparam;
     for (int i=0,j=0;i<config->GetnDV();i++){
     	if ((upper) && (config->GetParamDV(i,0)==1)){
     		A[j]=config->GetParamDV(i,1);
-    		// if (i==iDV){
-    		// 	A[j]+=config->GetDV_Value(iDV);
-    		// }
+    		if (i==iDV){
+    			A[j]+=config->GetDV_Value(iDV);
+    		}
     		cout<<"A"<<j<<" is "<<A[j]<<endl;
     		j++;
 
     	}else if ((!upper) && (config->GetParamDV(i,0)==0)){
     		A[j]=config->GetParamDV(i,1);
-    		// if (i==iDV){
-    		// 	A[j]-=config->GetDV_Value(iDV);
-    		// 	cout<<"A"<<j<<" is "<<A[j]<<endl;
-    		// }
+    		if (i==iDV){
+    			A[j]-=config->GetDV_Value(iDV);
+    			cout<<"A"<<j<<" is "<<A[j]<<endl;
+    		}
     		cout<<"A"<<j<<" is "<<A[j]<<endl;
     		j++;
     	}
@@ -5715,28 +5705,37 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
 		        Normal[0] = Normal_[0]*ValCos - Normal_[1]*ValSin;
 		        Normal[1] = Normal_[1]*ValCos + Normal_[0]*ValSin;
 			
+		        /* Make sure that only Varcoords are only evaluated on the corresponding surface */
+		        if (((upper)&&(Normal[1]>0))||((!upper)&&(Normal[1]<0))){
+
+
 		        /*--- Start Direct CST computation --- */
 		        /* Evaluate the Class function */
-		        su2double n1, n2, Cl;       
-				n1 = 0.5;
-				n2 = 1.0;
+			        su2double n1, n2, Cl;       
+					n1 = 0.5;
+					n2 = 1.0;
 
-				Cl=pow(Coord[0],n1)*pow((1-Coord[0]),n2);
-				/* Evaluate the Shape Functions */
-				su2double Sc,S=0;
-				for (int i=0;i<BPO+1;i++){
-					Sc=(K[i]*pow(Coord[0],i))*pow((1-Coord[0]),(BPO-i));
-					S=S+(Sc*A[i]);
-					cout<<"Sc"<<i<<" is "<<Sc<<endl;
-				}
+					Cl=pow(Coord[0],n1)*pow((1-Coord[0]),n2);
+					/* Evaluate the Shape Functions */
+					su2double Sc,S=0;
+					for (int i=0;i<BPO+1;i++){
+						Sc=(K[i]*pow(Coord[0],i))*pow((1-Coord[0]),(BPO-i));
+						S=S+(Sc*A[i]);
+						cout<<"Sc"<<i<<" is "<<Sc<<endl;
+					}
 
-				/* Evaluate the CST */
-				
-				CST=Cl*S;
+					/* Evaluate the CST */
+					
+					CST=Cl*S;
 
-				VarCoord[1]=sqrt(pow((Coord[1]-CST),2));
-				/* Temp Code */
-				cout<<"Cl= "<<Cl<<" S= "<<S<<" CST= "<<CST<<" VarCoord= "<<VarCoord[1]<<endl;
+					VarCoord[1]=sqrt(pow((Coord[1]-CST),2));
+					if (!upper){VarCoord[1]=VarCoord[1]*(-1);}
+
+					/* Temp Code */
+					cout<<"Cl= "<<Cl<<" S= "<<S<<" CST= "<<CST<<" VarCoord= "<<VarCoord[1]<<endl;
+
+
+			}
 				
 				
 	}
@@ -5753,6 +5752,12 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
       VarCoord_[0] = VarCoord[0]*ValCos - VarCoord[1]*ValSin;
       VarCoord_[1] = VarCoord[1]*ValCos + VarCoord[0]*ValSin;
 
+
+      			/* For initial deformation, assuming that inital Dv valu is 0.0 and that Scipy choose varaibles >0.0 */
+      			if ((config->GetDV_Value(iDV)==0.0)&&(iDV!=0)) {
+      				VarCoord_[0]=0.0; VarCoord_[1]=0.0;
+      			}
+      			/* End Temp Code*/
       			boundary->vertex[iMarker][iVertex]->AddVarCoord(VarCoord_);
 		}
 	}
