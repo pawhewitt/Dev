@@ -128,6 +128,10 @@ def shape_optimization( filename                           ,
     xb_low      = [float(bound_lower)]*n_dv # lower dv bound
     xb_up       = [float(bound_upper)]*n_dv # upper dv bound
     xb          = zip(xb_low,xb_up) # design bounds
+
+    # If CST Variables Re-Mesh to remove residual Varcoords
+    if (config['DEFINITION_DV']['KIND'][0]=="CST"):
+        SU2.mesh.CST_Fit(config)
     
     # State
     state = SU2.io.State()

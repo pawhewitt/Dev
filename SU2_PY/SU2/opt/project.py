@@ -40,6 +40,7 @@ import numpy as np
 from .. import io   as su2io
 from .. import eval as su2eval
 from .. import util as su2util
+from .. import mesh as su2mesh
 from ..io import redirect_folder
 
 from warnings import warn, simplefilter
@@ -474,7 +475,10 @@ class Project(object):
     def save(self):
         with su2io.redirect_folder(self.folder):
             su2io.save_data(self.filename,self)
-        
+    
+    def CST_Remesh(self,config):
+        su2mesh.CST_Fit(config)
+
     def __repr__(self):
         return '<Project> with %i <Design>' % len(self.designs)
     def __str__(self):
