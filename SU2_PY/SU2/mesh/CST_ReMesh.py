@@ -7,28 +7,15 @@ from math import factorial as fac
 import matplotlib.pyplot as plt
 from scipy.optimize import fmin_slsqp
 
-class CST_Fit():
+class CST_ReMesh(object):
 
 	def __init__(self,Config):
 
 		# Order determined by the number of design variables supplied
 		# Note that it's assumed that the order is identical for both surfaces
-		Order=int(0.5*len(Config['DEFINITION_DV']['PARAM'])-1)
-		# read coordinates
-		U_Coords,L_Coords=Read_Mesh(Config) # mesh/DAT filename
-
-		# compute the coefficients
-		Au,Al=Compute_Coeffs(U_Coords,L_Coords,Order)
-
-		dvs=np.zeros(len(Au)+len(Al))
-
-		# # Update Config File
-
-		Update_Config(filename,Config,Au,Al,dvs) 
-
-		# # plot the points showing how the foils differ and by how much
-
-		Plot(U_Coords,L_Coords,Au,Al)
+		self.Order=int(0.5*len(Config['DEFINITION_DV']['PARAM'])-1)
+		self.Marker=Config['DEFINITION_DV']['MARKER'][0][0]
+		self.Mesh=Config['MESH_FILENAME']
 		
 
 		# TODO
@@ -39,10 +26,11 @@ class CST_Fit():
 		# TODO
 		# Need to have CST added to C++ code for this
 
-		# Re_Mesh()
+	
 
-	def Update_Config(self,filename,Config,Au,Al,dvs):
 
+	def Update_Params(self,filename,Config,Au,Al):
+		dvs=np.zeros(len(Au)+len(Al))
 		Config.unpack_dvs(dvs)
 
 		j=0
@@ -56,24 +44,35 @@ class CST_Fit():
 				Config['DEFINITION_DV']['PARAM'][i][1]=Al[k]
 				Config['DEFINITION_DV']['KIND'][i]="CST"
 				k+=1
+
+		# Change Mesh out filename
+		Config['FILENAME_OUT']=Config['FILENAME_OUT']+'_CST'
+
 		#SU2.io.config.write_config(Config,Config_Data)
 		SU2.io.config.dump_config(filename,Config)
 		return
 
-	def Read_Mesh(self,Config):
+	def Update_config():
+		Config['FILENAME']=Config['FILENAME']+'_CST'
+		return Config
+
+
+	def Read_Mesh(self):
 
 		# Mesh Filename
-		Mesh=Config['MESH_FILENAME']
-		marker=Config['DEFINITION_DV']['MARKER'][0][0]
-
+		# Mesh=Config['MESH_FILENAME']
+		#marker=Config['DEFINITION_DV']['MARKER'][0][0]
+		Mesh=self.Mesh
+		Marker=self.Marker
+	
 		# Using the Su2 python scripts for reading mesh
 		Meshdata=SU2.mesh.tools.read(Mesh) # read the mesh
 
 		# sort airfoil coords to be arrange clockwise from trailing edge
-		Points,Loop=SU2.mesh.tools.sort_airfoil(Meshdata,marker)
+		Points,Loop=SU2.mesh.tools.sort_airfoil(Meshdata,Marker)
 		
 		# get the points for the surface marker
-		Foil_Points,Foil_Nodes=SU2.mesh.tools.get_markerPoints(Meshdata,marker)
+		Foil_Points,Foil_Nodes=SU2.mesh.tools.get_markerPoints(Meshdata,Marker)
 
 		#Get the sorted points 
 		Coords=np.zeros([len(Points),2])
@@ -81,21 +80,35 @@ class CST_Fit():
 			Coords[i][0]=Foil_Points[Loop[i]][0]
 			Coords[i][1]=Foil_Points[Loop[i]][1]
 		# Divide coords for surfaces
-		U_Coords,L_Coords=Split(Coords)
+		U_Coords,L_Coords=self.Split(Coords)
 
 		return U_Coords,L_Coords
 
-	def Compute_Coeffs(self,U_Coords,L_Coords,Order):
+	def Fit(self,U_Coords,L_Coords):
 		# initial coefficents set for upper (u) and lower (l) surfaces
-		Au=np.ones(Order+1)# one more than the order
-		Al=np.ones(Order+1)*-1 
-		
-		# Upper
-		Au=fmin_slsqp(Get_L2,Au,args=(U_Coords,n1,n2),iprint=0)
-		# Lower
-		Al=fmin_slsqp(Get_L2,Al,args=(L_Coords,n1,n2),iprint=0)
+		Au=np.ones(self.Order+1)# one more than the order
+		Al=np.ones(self.Order+1)*-1 
 
-		return Au,Al #,CST_Lower # See how to group this together 
+		# Upper
+		Au=fmin_slsqp(Get_L2,Au,args=(U_Coords),iprint=0)
+		# Lower
+		#Al=fmin_slsqp(self.Get_L2,Al,args=(L_Coords),iprint=0)
+
+		return Au,Al# Au,Al #,CST_Lower # See how to group this together 
+
+	# def Get_L2(self,A,Coords): 
+
+	# 	print "hello"
+
+	# 	CST_Coords=self.CST(Coords,A)
+
+	# 	self.L2=1.0
+	# 	# Calculate the current L2 norm 
+	# 	#L2=np.linalg.norm(CST_Coords - Coords,ord=2)
+	# 	#L2=float(L2)
+	# 	return 
+
+
 
 	def Bi_Coeff(self,Order): 
 		#compute the binomial coefficient
@@ -120,7 +133,7 @@ class CST_Fit():
 		# Total shape function
 		S=np.zeros(len(Coords))
 		# Component Shape Function
-		S_c=Comp_Shape(Coords,Order)
+		S_c=self.Comp_Shape(Coords,Order)
 
 		S_c=np.transpose(S_c)
 		for  i in range(len(Coords)):
@@ -130,7 +143,7 @@ class CST_Fit():
 
 	def Comp_Shape(self,Coords,Order):
 		# Component Shape function
-		K=Bi_Coeff(Order)
+		K=self.Bi_Coeff(Order)
 		x=[]
 		# compute the Binomial Coefficient
 		S_c=np.zeros([Order+1,len(Coords)])
@@ -144,10 +157,10 @@ class CST_Fit():
 	def CST(self,Coords,A): 
 		CST_Coords=np.zeros([len(Coords),2])
 		# Compute Class Function
-		C=C_n1n2(Coords)
+		C=self.C_n1n2(Coords)
 
 		# Compute the Shape Function
-		S=Total_Shape(Coords,A)
+		S=self.Total_Shape(Coords,A)
 		# evaluate the CST function
 		for i in range(len(Coords)):
 			CST_Coords[i][1]=C[i]*S[i]
@@ -155,20 +168,13 @@ class CST_Fit():
 
 		return CST_Coords
 
-	def Get_L2(self,A,Coords): 
-
-		CST_Coords=CST(Coords,A)
-
-		# Calculate the current L2 norm 
-		L2=np.linalg.norm(CST_Coords - Coords,ord=2)
-		return L2
 
 	def Split(self,Coords):
 			# Spilt the surfaces according to the z component of the normal
 
 		U_Coords=[]
 		L_Coords=[]
-		Normals=Get_Normal(Coords)
+		Normals=self.Get_Normal(Coords)
 
 		for i in range(len(Coords)):
 			if Normals[i][1]<0:
@@ -216,56 +222,64 @@ class CST_Fit():
 
 		return Normals
 
-	def Write_File(self): 
-		# Write a file containing the coefficients 
-		return
-
 	def Re_Mesh(self,config): # Mesh the geometry according to the CST approximation.
 		# for the SU2 option use the SU2_DEF code and for the dat file use the
-		# gmesh generator 
+		# gmesh generator
+		self.Update_Params() 
+		os.system("SU2_DEF "+config["FILENAME"])		
+
 		return 
-			os.system("SU2_DEF "+config["FILENAME"])		
 
 
 
 	def Plot(self,U_Coords,L_Coords,Au,Al):
 
-	u_coords=np.transpose(U_Coords)
-	l_coords=np.transpose(L_Coords)
-	
-	# Temp Code
-	Au[0]=Au[0]+0.3
+		u_coords=np.transpose(U_Coords)
+		l_coords=np.transpose(L_Coords)
+		
+		# Temp Code
+		Au[0]=Au[0]+0.3
 
-	CST_Upper=CST(U_Coords,Au)
-	CST_Lower=CST(L_Coords,Al)
+		CST_Upper=CST(U_Coords,Au)
+		CST_Lower=CST(L_Coords,Al)
 
-	cst_upper=np.transpose(CST_Upper)
-	cst_lower=np.transpose(CST_Lower)
+		cst_upper=np.transpose(CST_Upper)
+		cst_lower=np.transpose(CST_Lower)
 
 
-	fig=plt.figure()
-	ax=fig.add_subplot(1,1,1)
+		fig=plt.figure()
+		ax=fig.add_subplot(1,1,1)
 
-	
-	plt.plot(cst_upper[0],cst_upper[1],'o',label='CST',color='blue',markersize=5)
-	plt.plot(cst_lower[0],cst_lower[1],'o',color='blue',markersize=5)
-	
+		
+		plt.plot(cst_upper[0],cst_upper[1],'o',label='CST',color='blue',markersize=5)
+		plt.plot(cst_lower[0],cst_lower[1],'o',color='blue',markersize=5)
+		
 
-	plt.plot(u_coords[0],u_coords[1],label='Baseline',color='green')
-	plt.plot(l_coords[0],l_coords[1],color='green')
+		plt.plot(u_coords[0],u_coords[1],label='Baseline',color='green')
+		plt.plot(l_coords[0],l_coords[1],color='green')
 
-	plt.grid()
-	ax.legend(loc='best')
-	ax.set_xlabel('x/c')
-	ax.set_ylabel('z/c')
-	plt.title('Curve Fitting')
-	
-	filename='./Foils_Plot.png'
-	plt.savefig(filename,dpi=150)
-	plt.close()
+		plt.grid()
+		ax.legend(loc='best')
+		ax.set_xlabel('x/c')
+		ax.set_ylabel('z/c')
+		plt.title('Curve Fitting')
+		
+		filename='./Foils_Plot.png'
+		plt.savefig(filename,dpi=150)
+		plt.close()
 
-	# temp - print out coords to compare with DEF mesh 
-	Coords=np.append(CST_Upper,CST_Lower,axis=0)
-	np.savetxt("CST_Coords.dat",Coords)
+		# temp - print out coords to compare with DEF mesh 
+		Coords=np.append(CST_Upper,CST_Lower,axis=0)
+		np.savetxt("CST_Coords.dat",Coords)
 
-	return
+		return
+
+def Get_L2(A,Coords): 
+
+	print "hello"
+
+	L2=1.0
+	# Calculate the current L2 norm 
+	#L2=np.linalg.norm(CST_Coords - Coords,ord=2)
+	#L2=float(L2)
+	return L2 

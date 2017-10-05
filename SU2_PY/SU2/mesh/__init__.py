@@ -4,4 +4,6 @@ __all__ = ['adapt']
 
 import adapt
 
+from CST_ReMesh import CST_ReMesh
+
 from tools import *

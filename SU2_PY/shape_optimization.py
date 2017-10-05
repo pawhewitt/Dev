@@ -129,10 +129,7 @@ def shape_optimization( filename                           ,
     xb_up       = [float(bound_upper)]*n_dv # upper dv bound
     xb          = zip(xb_low,xb_up) # design bounds
 
-    # If CST Variables Re-Mesh to remove residual Varcoords
-    if (config['DEFINITION_DV']['KIND'][0]=="CST"):
-        SU2.mesh.CST_Fit(config)
-    
+  
     # State
     state = SU2.io.State()
     state.find_files(config)
@@ -144,6 +141,10 @@ def shape_optimization( filename                           ,
     else:
         project = SU2.opt.Project(config,state)
     
+    # If CST perform fitting, update config, Re-Mesh to remove residual Varcoords
+    if (config['DEFINITION_DV']['KIND'][0]=="CST"):
+        project.CST_ReMesh(config)
+
     # Optimize
     if optimization == 'SLSQP':
       SU2.opt.SLSQP(project,x0,xb,its,accu)
