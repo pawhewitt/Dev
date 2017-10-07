@@ -117,6 +117,20 @@ def shape_optimization( filename                           ,
     config.NUMBER_PART = partitions
     if quiet: config.CONSOLE = 'CONCISE'
     config.GRADIENT_METHOD = gradient
+
+    # If CST perform fitting, update config, Re-Mesh to remove residual Varcoords
+    if (config['DEFINITION_DV']['KIND'][0]=="CST"):
+        # Returns a config object with cst params and cst mesh pointer
+        # Create the CST object
+        cst=SU2.mesh.CST_ReMesh(config)
+        # Read the surface Mesh 
+        U_Coords,L_Coords=cst.Read_Mesh()
+        # Curve Fit the cst
+        Au,Al=cst.Fit(U_Coords,L_Coords)
+        # # Re-mesh to eliminate residual varcoords
+        cst.Re_Mesh(Au,Al)
+        # # return config with param values and name of new mesh
+        config=cst.Update_Config()
     
     its         = int ( config.OPT_ITERATIONS )
     accu        = float ( config.OPT_ACCURACY )
@@ -141,10 +155,6 @@ def shape_optimization( filename                           ,
     else:
         project = SU2.opt.Project(config,state)
     
-    # If CST perform fitting, update config, Re-Mesh to remove residual Varcoords
-    if (config['DEFINITION_DV']['KIND'][0]=="CST"):
-        project.CST_ReMesh(config)
-
     # Optimize
     if optimization == 'SLSQP':
       SU2.opt.SLSQP(project,x0,xb,its,accu)

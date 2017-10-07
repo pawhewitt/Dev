@@ -5640,13 +5640,8 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
 	if (config->GetParamDV(iDV, 0) == YES) { upper = true;}
 
  	su2double BPO=((config->GetnDV())/2)-1;
-    cout<<"BPO is "<<BPO<<endl;
     /* Get Weights  and add design variable value to the associated weight*/
     su2double A[config->GetnDV()/2];
-    /* Temp Code */
-    cout<<"Current Param number = "<<iDV<<endl;
-    cout<<"Upper Surface = "<<upper<<endl;
-
     su2double iparam;
     for (int i=0,j=0;i<config->GetnDV();i++){
     	if ((upper) && (config->GetParamDV(i,0)==1)){
@@ -5654,16 +5649,13 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
     		if (i==iDV){
     			A[j]+=config->GetDV_Value(iDV);
     		}
-    		cout<<"A"<<j<<" is "<<A[j]<<endl;
     		j++;
 
     	}else if ((!upper) && (config->GetParamDV(i,0)==0)){
     		A[j]=config->GetParamDV(i,1);
     		if (i==iDV){
     			A[j]-=config->GetDV_Value(iDV);
-    			cout<<"A"<<j<<" is "<<A[j]<<endl;
     		}
-    		cout<<"A"<<j<<" is "<<A[j]<<endl;
     		j++;
     	}
     	
@@ -5672,15 +5664,7 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
     su2double K[config->GetnDV()/2];
 		for(int i=0;i<BPO+1;i++){
 			K[i] = Factorial(BPO)/(Factorial(i)*Factorial(BPO-i));/*Binomial Coefficient */
-		cout<<"K"<<i<<" is "<<K[i]<<endl;
 		}
-
-  	/* Start Temp Code */
-	//cout<<"Cl\t St\t CST\t VarCoord\t"<<endl;
-
-
-
-	/* End Temp Code */
 
 	for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
 
@@ -5721,7 +5705,6 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
 					for (int i=0;i<BPO+1;i++){
 						Sc=(K[i]*pow(Coord[0],i))*pow((1-Coord[0]),(BPO-i));
 						S=S+(Sc*A[i]);
-						cout<<"Sc"<<i<<" is "<<Sc<<endl;
 					}
 
 					/* Evaluate the CST */
@@ -5730,10 +5713,6 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
 
 					VarCoord[1]=sqrt(pow((Coord[1]-CST),2));
 					if (!upper){VarCoord[1]=VarCoord[1]*(-1);}
-
-					/* Temp Code */
-					cout<<"Cl= "<<Cl<<" S= "<<S<<" CST= "<<CST<<" VarCoord= "<<VarCoord[1]<<endl;
-
 
 			}
 				

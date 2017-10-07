@@ -477,21 +477,6 @@ class Project(object):
         with su2io.redirect_folder(self.folder):
             su2io.save_data(self.filename,self)
     
-    def CST_ReMesh(self,config):
-        # Create the CST object
-        cst=su2mesh.CST_ReMesh(config)
-        # Read the surface Mesh 
-        U_Coords,L_Coords=cst.Read_Mesh()
-        # Curve Fit the cst
-        Au,Al=cst.Fit(U_Coords,L_Coords)
-        # # Re-mesh to eliminate residual varcoords
-        # cst.Re_Mesh()
-        # # return config with param values and name of new mesh
-        # config_cst=cst.Update_Config() 
-
-        # return config_cst
-
-
     def __repr__(self):
         return '<Project> with %i <Design>' % len(self.designs)
     def __str__(self):

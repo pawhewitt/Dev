@@ -242,7 +242,7 @@ class Config(ordered_bunch):
             Currently only works for DV_VALUE_NEW and DV_VALUE_OLD
             Returns a large value otherwise
                 
-        """        
+        """       
 
         konfig_diff = self.diff(konfig)
         
@@ -251,6 +251,8 @@ class Config(ordered_bunch):
     
         distance = 0.0
         
+
+
         for key in keys_check:
             if konfig_diff.has_key(key):
                 

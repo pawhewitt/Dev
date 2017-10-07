@@ -13,55 +13,50 @@ class CST_ReMesh(object):
 
 		# Order determined by the number of design variables supplied
 		# Note that it's assumed that the order is identical for both surfaces
+		self.Config=Config
 		self.Order=int(0.5*len(Config['DEFINITION_DV']['PARAM'])-1)
 		self.Marker=Config['DEFINITION_DV']['MARKER'][0][0]
 		self.Mesh=Config['MESH_FILENAME']
-		
+		self.Mesh_out=self.Mesh[:-4]+'_CST'+self.Mesh[-4:]
 
 		# TODO
 		# Why are the x components different in the CST and 
 		# the original foil for the RAE?
 
-		# # re-mesh geometry
-		# TODO
-		# Need to have CST added to C++ code for this
 
-	
-
-
-	def Update_Params(self,filename,Config,Au,Al):
-		dvs=np.zeros(len(Au)+len(Al))
-		Config.unpack_dvs(dvs)
+	def Update_Params(self,Au,Al):
+		dvs=[0.0]*((len(Au)+len(Al)))
+		#dvs=[0.2,0.0,0.2,0.0,0.0,0.0,0.0,0.0]
+		self.Config.unpack_dvs(dvs)
 
 		j=0
 		k=0
 		for i in range(len(Au)*2):
-			if Config['DEFINITION_DV']['PARAM'][i][0]==1:
-				Config['DEFINITION_DV']['PARAM'][i][1]=Au[j]
-				Config['DEFINITION_DV']['KIND'][i]="CST"
+			if self.Config['DEFINITION_DV']['PARAM'][i][0]==1:
+				self.Config['DEFINITION_DV']['PARAM'][i][1]=Au[j]
+				self.Config['DEFINITION_DV']['KIND'][i]="CST"
 				j+=1
 			else:
-				Config['DEFINITION_DV']['PARAM'][i][1]=Al[k]
-				Config['DEFINITION_DV']['KIND'][i]="CST"
+				self.Config['DEFINITION_DV']['PARAM'][i][1]=Al[k]
+				self.Config['DEFINITION_DV']['KIND'][i]="CST"
 				k+=1
 
 		# Change Mesh out filename
-		Config['FILENAME_OUT']=Config['FILENAME_OUT']+'_CST'
+		self.Config['MESH_OUT_FILENAME']=self.Mesh_out
 
-		#SU2.io.config.write_config(Config,Config_Data)
-		SU2.io.config.dump_config(filename,Config)
+		SU2.io.config.dump_config('temp_config.cfg',self.Config)
 		return
 
-	def Update_config():
-		Config['FILENAME']=Config['FILENAME']+'_CST'
-		return Config
+	def Update_Config(self):#
+		# Use the new mesh
+		self.Config['MESH_FILENAME']=self.Mesh_out
+		# Reset the Meshout
+		self.Config['MESH_OUT_FILENAME']='mesh_out.su2'
+		return self.Config
 
 
 	def Read_Mesh(self):
 
-		# Mesh Filename
-		# Mesh=Config['MESH_FILENAME']
-		#marker=Config['DEFINITION_DV']['MARKER'][0][0]
 		Mesh=self.Mesh
 		Marker=self.Marker
 	
@@ -85,28 +80,23 @@ class CST_ReMesh(object):
 		return U_Coords,L_Coords
 
 	def Fit(self,U_Coords,L_Coords):
-		# initial coefficents set for upper (u) and lower (l) surfaces
+	# initial coefficents set for upper (u) and lower (l) surfaces
 		Au=np.ones(self.Order+1)# one more than the order
 		Al=np.ones(self.Order+1)*-1 
-
-		# Upper
-		Au=fmin_slsqp(Get_L2,Au,args=(U_Coords),iprint=0)
+		# Upper -  note that a seperator is needed after args var for an unknown reason
+		Au=fmin_slsqp(self.Get_L2,Au,args=(U_Coords,),iprint=0)
 		# Lower
-		#Al=fmin_slsqp(self.Get_L2,Al,args=(L_Coords),iprint=0)
+		Al=fmin_slsqp(self.Get_L2,Al,args=(L_Coords,),iprint=0)
 
-		return Au,Al# Au,Al #,CST_Lower # See how to group this together 
+		return Au,Al 
 
-	# def Get_L2(self,A,Coords): 
+	def Get_L2(self,A,Coords): 
 
-	# 	print "hello"
+		CST_Coords=self.CST(Coords,A)
+		# Calculate the current L2 norm 
+		L2=np.linalg.norm(CST_Coords - Coords,ord=2)
 
-	# 	CST_Coords=self.CST(Coords,A)
-
-	# 	self.L2=1.0
-	# 	# Calculate the current L2 norm 
-	# 	#L2=np.linalg.norm(CST_Coords - Coords,ord=2)
-	# 	#L2=float(L2)
-	# 	return 
+		return L2
 
 
 
@@ -128,12 +118,10 @@ class CST_ReMesh(object):
 		return C
 
 	def Total_Shape(self,Coords,A): 
-		# Order of the bernstein polynomial 
-		Order=len(A)-1
 		# Total shape function
 		S=np.zeros(len(Coords))
 		# Component Shape Function
-		S_c=self.Comp_Shape(Coords,Order)
+		S_c=self.Comp_Shape(Coords)
 
 		S_c=np.transpose(S_c)
 		for  i in range(len(Coords)):
@@ -141,10 +129,10 @@ class CST_ReMesh(object):
 
 		return S
 
-	def Comp_Shape(self,Coords,Order):
+	def Comp_Shape(self,Coords):
+		Order=self.Order
 		# Component Shape function
 		K=self.Bi_Coeff(Order)
-		x=[]
 		# compute the Binomial Coefficient
 		S_c=np.zeros([Order+1,len(Coords)])
 
@@ -222,11 +210,13 @@ class CST_ReMesh(object):
 
 		return Normals
 
-	def Re_Mesh(self,config): # Mesh the geometry according to the CST approximation.
-		# for the SU2 option use the SU2_DEF code and for the dat file use the
-		# gmesh generator
-		self.Update_Params() 
-		os.system("SU2_DEF "+config["FILENAME"])		
+	def Re_Mesh(self,Al,Au):
+		# Update the Config and dump a raw temp copy for SU2_DEF
+		self.Update_Params(Al,Au) 
+		# Call Mesh Deformation Code
+		os.system("SU2_DEF "+"temp_config.cfg")
+		# remove the temp file
+		os.system("rm temp_config.cfg")
 
 		return 
 
@@ -274,12 +264,5 @@ class CST_ReMesh(object):
 
 		return
 
-def Get_L2(A,Coords): 
 
-	print "hello"
 
-	L2=1.0
-	# Calculate the current L2 norm 
-	#L2=np.linalg.norm(CST_Coords - Coords,ord=2)
-	#L2=float(L2)
-	return L2 
