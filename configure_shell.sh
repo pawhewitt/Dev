@@ -1,1 +1,1 @@
-./configure prefix=/usr/local/SU2_CST --disable-CFD --disable-DOT --disable-GEO --disable-IDE --disable-MSH --disable-SOL --enable-tecio=no --enable-cgns=no
+./configure prefix=/usr/local/SU2_CST --disable-CFD --disable-GEO --disable-IDE --disable-MSH --disable-SOL --disable-DEF 

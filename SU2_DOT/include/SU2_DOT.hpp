@@ -57,7 +57,7 @@ using namespace std;
  * \param[in] Gradient_file - Output file to store the gradient data.
  */
 
-void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *surface_movement, ofstream& Gradient_file);
+void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *surface_movement, ofstream& Gradient_file,ofstream& Geo_Sens_File);
 
 /*!
  * \brief Projection of the surface sensitivity using algorithmic differentiation (AD).
@@ -77,3 +77,7 @@ void SetProjection_AD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
  */
 
 void OutputGradient(su2double** Gradient, CConfig* config, ofstream& Gradient_file);
+
+/* write the Geometric Sensitivity Data to file if running in serial*/
+
+void Output_GeoSens(su2double** GeoSens, CConfig* config, CGeometry* geometry, ofstream& Geo_Sens_File);

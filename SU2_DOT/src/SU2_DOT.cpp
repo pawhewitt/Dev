@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
   su2double StartTime = 0.0, StopTime = 0.0, UsedTime = 0.0;
   
   char config_file_name[MAX_STRING_SIZE], *cstr;
-  ofstream Gradient_file;
+  ofstream Gradient_file,Geo_Sens_File;
   int rank = MASTER_NODE;
   int size = SINGLE_NODE;
   
@@ -200,6 +200,31 @@ int main(int argc, char *argv[]) {
       strcpy (cstr, config_container[ZONE_0]->GetObjFunc_Grad_FileName().c_str());
       Gradient_file.open(cstr, ios::out);
     }
+
+    /*--- Write the Geometric Sensitivities in a external file for serial only---*/
+      /*--- Write Geometric Gradients to File for serial only---*/
+  #ifdef HAVE_MPI
+  		cout<<"Run in serial for Geometric Sensitivity output"<<endl;
+  #else
+  	   if (rank == MASTER_NODE) {
+       Geo_Sens_File.open("Geo_Sens.csv");
+       Geo_Sens_File<<"Design Variable,";
+
+       for (int iMarker = 0; iMarker < config_container[ZONE_0]->GetnMarker_All(); iMarker++) {
+      		if (config_container[ZONE_0]->GetMarker_All_DV(iMarker) == YES) {
+        		for (int iVertex = 0; iVertex < geometry_container[ZONE_0]->nVertex[iMarker]; iVertex++) {
+          	  		
+                	Geo_Sens_File<<iVertex<<",";
+                	
+         		}
+        	}
+ 		}
+       Geo_Sens_File<<endl;
+    }
+  #endif
+
+ 
+
     
     /*--- If AD mode is enabled we can use it to compute the projection,
      * otherwise we use finite differences. ---*/
@@ -207,12 +232,16 @@ int main(int argc, char *argv[]) {
     if (config_container[ZONE_0]->GetAD_Mode()){
       SetProjection_AD(geometry_container[ZONE_0], config_container[ZONE_0], surface_movement, Gradient_file);
     }else{
-      SetProjection_FD(geometry_container[ZONE_0], config_container[ZONE_0], surface_movement, Gradient_file);
+      SetProjection_FD(geometry_container[ZONE_0], config_container[ZONE_0], surface_movement, Gradient_file,Geo_Sens_File);
     }
     
     if (rank == MASTER_NODE)
       Gradient_file.close();
-  }
+  	
+  	if (rank == MASTER_NODE)
+      Geo_Sens_File.close();
+  	
+  	}
   
   /*--- Synchronization point after a single solver iteration. Compute the
    wall clock time required. ---*/
@@ -246,12 +275,12 @@ int main(int argc, char *argv[]) {
   
 }
 
-void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *surface_movement, ofstream& Gradient_file){
+void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *surface_movement, ofstream& Gradient_file, ofstream& Geo_Sens_File){
   
   unsigned short iDV, nDV, iFFDBox, nDV_Value, iMarker, iDim;
   unsigned long iVertex, iPoint;
   su2double delta_eps, my_Gradient, **Gradient, *Normal, dS, *VarCoord, Sensitivity,
-  dalpha[3], deps[3], dalpha_deps;
+  dalpha[3], deps[3], dalpha_deps, **GeoSens;
   bool *UpdatePoint, MoveSurface, Local_MoveSurface;
   CFreeFormDefBox **FFDBox;
   
@@ -284,6 +313,12 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
     Gradient[iDV] = new su2double[nDV_Value];
   }
   
+  /*--- Structure to store Geometric Sensitivities ---*/
+  GeoSens= new su2double*[nDV];
+  for (int i=0;i<nDV;i++){
+  	GeoSens[i]= new su2double[geometry->GetnPoint()];
+  }
+
   /*--- Continuous adjoint gradient computation ---*/
   
   if (rank == MASTER_NODE)
@@ -489,7 +524,9 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
                   dalpha[iDim] = Normal[iDim] / dS;
                   dalpha_deps -= dalpha[iDim]*deps[iDim];
                 }
-                
+                /* Store Geometric Sensitivities */                
+                GeoSens[iDV][iPoint]=dalpha_deps;
+
                 my_Gradient += Sensitivity*dalpha_deps;
                 UpdatePoint[iPoint] = false;
               }
@@ -512,7 +549,15 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
   /*--- Print gradients to screen and file ---*/
   
   OutputGradient(Gradient, config, Gradient_file);
+
+  /*--- Write Geometric Gradients to File for serial only---*/
+  #ifdef HAVE_MPI
+  		cout<<"Run in serial for Geometric Sensitivity output"<<endl;
+  #else
+  		Output_GeoSens(GeoSens,config,geometry,Geo_Sens_File);
+  #endif
   
+
   for (iDV = 0; iDV  < nDV; iDV++){
     delete [] Gradient[iDV];
   }
@@ -700,4 +745,25 @@ void OutputGradient(su2double** Gradient, CConfig* config, ofstream& Gradient_fi
       cout <<"-------------------------------------------------------------------------" << endl;
     }
   }
+}
+
+void Output_GeoSens(su2double** GeoSens,CConfig* config, CGeometry* geometry, ofstream& Geo_Sens_File){
+
+	for (int iDV;iDV<config->GetnDV();iDV++){
+		Geo_Sens_File<<iDV<<",";
+      for (int iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
+          if (config->GetMarker_All_DV(iMarker) == YES) {
+            for (int iVertex = 0, iPoint=0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+                iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+              	if (iPoint < geometry->GetnPointDomain() ){
+                	Geo_Sens_File<<GeoSens[iDV][iPoint];
+                	Geo_Sens_File<<",";
+
+				}
+			}
+		  }
+	   }
+	   Geo_Sens_File<<endl;
+	}
+
 }
