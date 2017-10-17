@@ -208,7 +208,6 @@ int main(int argc, char *argv[]) {
   #else
   	   if (rank == MASTER_NODE) {
        Geo_Sens_File.open("Geo_Sens.csv");
-       Geo_Sens_File<<"Design Variable,";
 
        for (int iMarker = 0; iMarker < config_container[ZONE_0]->GetnMarker_All(); iMarker++) {
       		if (config_container[ZONE_0]->GetMarker_All_DV(iMarker) == YES) {
@@ -560,8 +559,10 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
 
   for (iDV = 0; iDV  < nDV; iDV++){
     delete [] Gradient[iDV];
+    delete [] GeoSens[iDV];
   }
   delete [] Gradient;
+  delete [] GeoSens;
   delete [] UpdatePoint;
   
 }
@@ -750,7 +751,6 @@ void OutputGradient(su2double** Gradient, CConfig* config, ofstream& Gradient_fi
 void Output_GeoSens(su2double** GeoSens,CConfig* config, CGeometry* geometry, ofstream& Geo_Sens_File){
 
 	for (int iDV;iDV<config->GetnDV();iDV++){
-		Geo_Sens_File<<iDV<<",";
       for (int iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
           if (config->GetMarker_All_DV(iMarker) == YES) {
             for (int iVertex = 0, iPoint=0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
