@@ -5469,9 +5469,13 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
 
  	su2double BPO=((config->GetnDV())/2)-1;
     /* Get Weights  and add design variable value to the associated weight*/
+    /* Note that only the surface corresponding to the current design variable is evaluated */
+    /* It's assumed that there is an equal number of variables for each surface */ 
     su2double A[config->GetnDV()/2];
     su2double iparam;
+    /* Get the weights for the current surface */
     for (int i=0,j=0;i<config->GetnDV();i++){
+      /* If current dv's surface param is upper, get the other upper weights */
     	if ((upper) && (config->GetParamDV(i,0)==1)){
     		A[j]=config->GetParamDV(i,1);
     		if (i==iDV){
@@ -5539,9 +5543,10 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
 					
 					CST=Cl*S;
 					/* temp code 19th Oct - start*/
-					if (iDV==0){cout<<Coord[0]<<"\t"<<CST<<endl;}
 
-					// /* temp code 19th Oct - start */
+					if ((iDV==0)||(iDV==4)){cout<<Coord[0]<<"\t"<<CST<<endl;}
+
+					// /* temp code 19th Oct - end */
 					VarCoord[1]=sqrt(pow((Coord[1]-CST),2));
 					// temp print out varcoord if mdc - start
 				
@@ -5570,11 +5575,15 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
       VarCoord_[1] = VarCoord[1]*ValCos + VarCoord[0]*ValSin;
 
 
-      			/* For initial deformation, assuming that inital Dv valu is 0.0 and that Scipy choose varaibles >0.0 */
-      			if ((config->GetDV_Value(iDV)==0.0)&&(iDV!=0)) {
-      				VarCoord_[0]=0.0; VarCoord_[1]=0.0;
-      			}
-      			/* End Temp Code*/
+           /*Only count the varcoords oce for each surface in the initial deformation otherwise varcoords
+            would stack up for each variable */
+            if (config->GetDV_Value(iDV)==0.0){
+              if ((iDV<((config->GetnDV()/2)-1)) ||(iDV>(config->GetnDV()/2))) {
+                VarCoord_[0]=0.0; VarCoord_[1]=0.0;
+              }
+            }
+
+
       			boundary->vertex[iMarker][iVertex]->AddVarCoord(VarCoord_);
 		}
 	}

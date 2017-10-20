@@ -757,8 +757,9 @@ void Output_GeoSens(su2double** GeoSens,CConfig* config, CGeometry* geometry, of
                 iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
               	if (iPoint < geometry->GetnPointDomain() ){
                 	Geo_Sens_File<<GeoSens[iDV][iPoint];
-                	Geo_Sens_File<<",";
-
+                	if (iPoint != geometry->GetnPointDomain()-1){
+                	     	Geo_Sens_File<<",";
+                	}
 				}
 			}
 		  }
