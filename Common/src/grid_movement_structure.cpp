@@ -5542,24 +5542,11 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
 					/* Evaluate the CST */
 					
 					CST=Cl*S;
-					/* temp code 19th Oct - start*/
-
-					if ((iDV==0)||(iDV==4)){cout<<Coord[0]<<"\t"<<CST<<endl;}
-
-					// /* temp code 19th Oct - end */
+          /* VarCoord is the difference in the mesh and the CST values for a point */
 					VarCoord[1]=sqrt(pow((Coord[1]-CST),2));
-					// temp print out varcoord if mdc - start
-				
-					// if ((ResetDef==false)&&(iDV==0)){
-					// 	cout<<Coord[0]<<"\t"<<VarCoord[1]<<endl;
-					// }
-					// temp print out varcoord if mdc - end
-				
-					if (!upper){VarCoord[1]=VarCoord[1]*(-1);}
-
+          /* VarCoords need a direction */
+          if (CST<Coord[1]){VarCoord[1]=VarCoord[1]*(-1);}
 			}
-				
-				
 	}
 
 
@@ -5575,12 +5562,14 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
       VarCoord_[1] = VarCoord[1]*ValCos + VarCoord[0]*ValSin;
 
 
-           /*Only count the varcoords oce for each surface in the initial deformation otherwise varcoords
-            would stack up for each variable */
-            if (config->GetDV_Value(iDV)==0.0){
+           /* Only count the varcoords once for each surface in the initial deformation otherwise varcoords
+            would stack up for each variable, only for SU2_DEF */
+            if ((config->GetDV_Value(iDV)==0.0) && (ResetDef==false)) {
+              /* set to zero for last in one series and first in the other */
               if ((iDV<((config->GetnDV()/2)-1)) ||(iDV>(config->GetnDV()/2))) {
                 VarCoord_[0]=0.0; VarCoord_[1]=0.0;
-              }
+                }
+              else {cout<<Coord[0]<<"\t"<<VarCoord_[1]<<endl;}
             }
 
 
