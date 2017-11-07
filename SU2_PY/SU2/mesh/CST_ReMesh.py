@@ -26,7 +26,6 @@ class CST_ReMesh(object):
 
 	def Update_Params(self,Au,Al):
 		dvs=[0.0]*((len(Au)+len(Al)))
-		#dvs=[0.2,0.0,0.2,0.0,0.0,0.0,0.0,0.0]
 		self.Config.unpack_dvs(dvs)
 
 		j=0
@@ -63,17 +62,15 @@ class CST_ReMesh(object):
 		# Using the Su2 python scripts for reading mesh
 		Meshdata=SU2.mesh.tools.read(Mesh) # read the mesh
 
-		# sort airfoil coords to be arrange clockwise from trailing edge
-		Points,Loop=SU2.mesh.tools.sort_airfoil(Meshdata,Marker)
 		
 		# get the points for the surface marker
 		Foil_Points,Foil_Nodes=SU2.mesh.tools.get_markerPoints(Meshdata,Marker)
 
 		#Get the sorted points 
-		Coords=np.zeros([len(Points),2])
-		for i in range(len(Points)):
-			Coords[i][0]=Foil_Points[Loop[i]][0]
-			Coords[i][1]=Foil_Points[Loop[i]][1]
+		Coords=np.zeros([len(Foil_Points),2])
+		for i in range(len(Foil_Points)):
+			Coords[i][0]=Foil_Points[i][0]
+			Coords[i][1]=Foil_Points[i][1]
 		# Divide coords for surfaces
 		U_Coords,L_Coords=self.Split(Coords)
 

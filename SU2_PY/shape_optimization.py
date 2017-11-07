@@ -131,15 +131,29 @@ def shape_optimization( filename                           ,
         cst.Re_Mesh(Au,Al)
         # # return config with param values and name of new mesh
         config=cst.Update_Config()
-    
+      
     its         = int ( config.OPT_ITERATIONS )
     accu        = float ( config.OPT_ACCURACY )
-    bound_upper = float ( config.OPT_BOUND_UPPER )
-    bound_lower = float ( config.OPT_BOUND_LOWER )
+
     def_dv      = config.DEFINITION_DV
     n_dv        = sum(def_dv['SIZE'])
     x0          = [0.0]*n_dv # initial design
-    xb_low      = [float(bound_lower)]*n_dv # lower dv bound
+
+    # If using CST set specific lower bounds for each varaible based on variable value
+    if (config['DEFINITION_DV']['KIND'][0]=="CST"):
+        xb_low=[]
+        for param in config['DEFINITION_DV']['PARAM']:
+            if param[0]==0:
+                xb_low.append(param[1])
+            else:
+                xb_low.append(param[1]*-1)
+
+    else:
+        bound_lower = float ( config.OPT_BOUND_LOWER )
+        xb_low      = [float(bound_lower)]*n_dv # lower dv bound
+
+    
+    bound_upper = float ( config.OPT_BOUND_UPPER )
     xb_up       = [float(bound_upper)]*n_dv # upper dv bound
     xb          = zip(xb_low,xb_up) # design bounds
 

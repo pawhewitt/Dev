@@ -5569,8 +5569,7 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
               if ((iDV<((config->GetnDV()/2)-1)) ||(iDV>(config->GetnDV()/2))) {
                 VarCoord_[0]=0.0; VarCoord_[1]=0.0;
                 }
-              else {cout<<Coord[0]<<"\t"<<VarCoord_[1]<<endl;}
-            }
+             }
 
 
       			boundary->vertex[iMarker][iVertex]->AddVarCoord(VarCoord_);
