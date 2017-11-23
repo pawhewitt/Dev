@@ -39,6 +39,7 @@ import os, sys, shutil, copy
 import subprocess
 from ..io import Config
 from ..util import which
+from .. import Vn_Tools
 
 # ------------------------------------------------------------
 #  Setup
@@ -73,6 +74,19 @@ return_code_map = {
     1 : EvaluationFailure ,
     2 : DivergenceFailure ,
 }
+
+# CAD optimisation pickle file management
+def Run_Vn(config,Module):
+    Vn_Tools=Vn_Tools(config)
+    Vn_data={}
+    Vn_data['wantdisp']=True
+    Vn_data['params']=[0.0, 0.0]
+    Vn_Tools.create_pickle(Vn_data)
+
+    return
+
+
+
     
 # ------------------------------------------------------------
 #  SU2 Suite Interface Functions
@@ -114,6 +128,8 @@ def CFD(config):
         the_Command = 'SU2_CFD ' + tempname
 
     the_Command = build_command( the_Command , processes )
+    Run_Vn(config,'cfd')
+
     run_command( the_Command )
     
     #os.remove(tempname)

@@ -1,0 +1,331 @@
+
+-------------------------------------------------------------------------
+|    ___ _   _ ___                                                      |
+|   / __| | | |_  )   Release 5.0.0  "Raven"                            |
+|   \__ \ |_| |/ /                                                      |
+|   |___/\___//___|   Suite (Geometry Definition Code)                  |
+|                                                                       |
+-------------------------------------------------------------------------
+| SU2 Original Developers: Dr. Francisco D. Palacios.                   |
+|                          Dr. Thomas D. Economon.                      |
+-------------------------------------------------------------------------
+| SU2 Developers:                                                       |
+| - Prof. Juan J. Alonso's group at Stanford University.                |
+| - Prof. Piero Colonna's group at Delft University of Technology.      |
+| - Prof. Nicolas R. Gauger's group at Kaiserslautern U. of Technology. |
+| - Prof. Alberto Guardone's group at Polytechnic University of Milan.  |
+| - Prof. Rafael Palacios' group at Imperial College London.            |
+| - Prof. Edwin van der Weide's group at the University of Twente.      |
+| - Prof. Vincent Terrapon's group at the University of Liege.          |
+-------------------------------------------------------------------------
+| Copyright (C) 2012-2017 SU2, the open-source CFD code.                |
+|                                                                       |
+| SU2 is free software; you can redistribute it and/or                  |
+| modify it under the terms of the GNU Lesser General Public            |
+| License as published by the Free Software Foundation; either          |
+| version 2.1 of the License, or (at your option) any later version.    |
+|                                                                       |
+| SU2 is distributed in the hope that it will be useful,                |
+| but WITHOUT ANY WARRANTY; without even the implied warranty of        |
+| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
+| Lesser General Public License for more details.                       |
+|                                                                       |
+| You should have received a copy of the GNU Lesser General Public      |
+| License along with SU2. If not, see <http://www.gnu.org/licenses/>.   |
+-------------------------------------------------------------------------
+
+------------------------ Physical Case Definition -----------------------
+Input mesh file name: mesh_NACA0012_inv_deform.su2
+
+-------------------------- Output Information ---------------------------
+
+------------------- Config File Boundary Information --------------------
+Euler wall boundary marker(s): airfoil.
+Far-field boundary marker(s): farfield.
+
+---------------------- Read Grid File Information -----------------------
+Two dimensional problem.
+5233 points.
+2 surface markers.
+200 boundary elements in index 0 (Marker = airfoil).
+50 boundary elements in index 1 (Marker = farfield).
+10216 triangles.
+
+----------------------- Preprocessing computations ----------------------
+Setting local point connectivity.
+Checking the numerical grid orientation of the interior elements.
+Identify edges and vertices.
+Computing centers of gravity.
+Setting the bound control volume structure.
+Compute the surface curvature.
+Max K: 7835.1. Mean K: 35.1764. Standard deviation K: 494.472.
+Set plane structure.
+Set airfoil section structure.
+
+-------------------- Objective function evaluation ----------------------
+
+Completed in 0.018455 seconds on 1 core.
+
+------------------------- Exit Success (SU2_GEO) ------------------------
+
+
+-------------------------------------------------------------------------
+|    ___ _   _ ___                                                      |
+|   / __| | | |_  )   Release 5.0.0  "Raven"                            |
+|   \__ \ |_| |/ /                                                      |
+|   |___/\___//___|   Suite (Geometry Definition Code)                  |
+|                                                                       |
+-------------------------------------------------------------------------
+| SU2 Original Developers: Dr. Francisco D. Palacios.                   |
+|                          Dr. Thomas D. Economon.                      |
+-------------------------------------------------------------------------
+| SU2 Developers:                                                       |
+| - Prof. Juan J. Alonso's group at Stanford University.                |
+| - Prof. Piero Colonna's group at Delft University of Technology.      |
+| - Prof. Nicolas R. Gauger's group at Kaiserslautern U. of Technology. |
+| - Prof. Alberto Guardone's group at Polytechnic University of Milan.  |
+| - Prof. Rafael Palacios' group at Imperial College London.            |
+| - Prof. Edwin van der Weide's group at the University of Twente.      |
+| - Prof. Vincent Terrapon's group at the University of Liege.          |
+-------------------------------------------------------------------------
+| Copyright (C) 2012-2017 SU2, the open-source CFD code.                |
+|                                                                       |
+| SU2 is free software; you can redistribute it and/or                  |
+| modify it under the terms of the GNU Lesser General Public            |
+| License as published by the Free Software Foundation; either          |
+| version 2.1 of the License, or (at your option) any later version.    |
+|                                                                       |
+| SU2 is distributed in the hope that it will be useful,                |
+| but WITHOUT ANY WARRANTY; without even the implied warranty of        |
+| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
+| Lesser General Public License for more details.                       |
+|                                                                       |
+| You should have received a copy of the GNU Lesser General Public      |
+| License along with SU2. If not, see <http://www.gnu.org/licenses/>.   |
+-------------------------------------------------------------------------
+
+------------------------ Physical Case Definition -----------------------
+Input mesh file name: mesh_NACA0012_inv_deform.su2
+
+-------------------------- Output Information ---------------------------
+
+------------------- Config File Boundary Information --------------------
+Euler wall boundary marker(s): airfoil.
+Far-field boundary marker(s): farfield.
+
+---------------------- Read Grid File Information -----------------------
+Two dimensional problem.
+5233 points.
+2 surface markers.
+200 boundary elements in index 0 (Marker = airfoil).
+50 boundary elements in index 1 (Marker = farfield).
+10216 triangles.
+
+----------------------- Preprocessing computations ----------------------
+Setting local point connectivity.
+Checking the numerical grid orientation of the interior elements.
+Identify edges and vertices.
+Computing centers of gravity.
+Setting the bound control volume structure.
+Compute the surface curvature.
+Max K: 7835.1. Mean K: 35.1764. Standard deviation K: 494.472.
+Set plane structure.
+Set airfoil section structure.
+
+-------------------- Objective function evaluation ----------------------
+
+------------- Gradient evaluation using finite differences --------------
+
+Design variable number 0.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 1.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 2.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 3.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 4.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 5.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 6.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 7.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 8.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 9.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 10.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 11.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 12.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 13.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 14.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 15.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 16.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 17.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 18.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 19.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 20.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 21.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 22.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 23.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 24.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 25.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 26.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 27.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 28.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 29.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 30.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 31.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 32.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 33.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 34.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 35.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 36.
+Perform 2D deformation of the surface.
+
+-------------------------------------------------------------------------
+
+Design variable number 37.
+Perform 2D deformation of the surface.
+
+
+Completed in 0.031606 seconds on 1 core.
+
+------------------------- Exit Success (SU2_GEO) ------------------------
+

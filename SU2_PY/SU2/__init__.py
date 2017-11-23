@@ -12,6 +12,7 @@ import mesh
 import eval
 import opt
 import util
+from Vn_Tools import Vn_Tools
 
 try:
     import readline

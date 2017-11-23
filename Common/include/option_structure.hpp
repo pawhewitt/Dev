@@ -1166,6 +1166,7 @@ enum ENUM_PARAM {
   SURFACE_FILE = 23,		     /*!< Nodal coordinates set using a surface file. */
   CUSTOM = 24,               /*!< 'CUSTOM' for use in external python analysis. */
   NO_DEFORMATION = 25,		   /*!< \brief No Deformation. */
+  CAD =26,                    /*! CAD definiation for Vnprocess    */
   ANGLE_OF_ATTACK = 101,	   /*!< \brief Angle of attack for airfoils. */
   FFD_ANGLE_OF_ATTACK = 102	 /*!< \brief Angle of attack for FFD problem. */
 };
@@ -1197,7 +1198,8 @@ static const map<string, ENUM_PARAM> Param_Map = CCreateMap<string, ENUM_PARAM>
 ("SURFACE_FILE", SURFACE_FILE)
 ("CUSTOM", CUSTOM)
 ("NO_DEFORMATION", NO_DEFORMATION)
-("CST", CST);
+("CST", CST)
+("CAD", CAD);
 
 
 /*!
@@ -2142,6 +2144,7 @@ public:
         case HICKS_HENNE:          nParamDV = 2; break;
         case SURFACE_BUMP:         nParamDV = 3; break;
         case CST:                  nParamDV = 3; break;
+        case CAD:                  nParamDV = 1; break; 
         case ANGLE_OF_ATTACK:      nParamDV = 1; break;
         case SCALE:                nParamDV = 0; break;
         case TRANSLATION:          nParamDV = 3; break;

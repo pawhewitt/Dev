@@ -3942,6 +3942,7 @@ void CConfig::SetOutput(unsigned short val_software, unsigned short val_izone) {
           case FFD_THICKNESS:         cout << "FFD (thickness) <-> "; break;
           case FFD_ANGLE_OF_ATTACK:   cout << "FFD (angle of attack) <-> "; break;
           case CUSTOM:                cout << "Custom DV <-> "; break;
+          case CAD:                   cout << "CAD Parameterisation <-> "; break;
         }
         
         for (iMarker_DV = 0; iMarker_DV < nMarker_DV; iMarker_DV++) {
@@ -3959,7 +3960,8 @@ void CConfig::SetOutput(unsigned short val_software, unsigned short val_izone) {
         if ((Design_Variable[iDV] == NO_DEFORMATION) ||
             (Design_Variable[iDV] == FFD_SETTING) ||
             (Design_Variable[iDV] == SCALE) ) nParamDV = 0;
-        if (Design_Variable[iDV] == ANGLE_OF_ATTACK) nParamDV = 1;
+        if ((Design_Variable[iDV] == ANGLE_OF_ATTACK) ||
+          (Design_Variable[iDV] == CAD) ) nParamDV = 1;
         if ((Design_Variable[iDV] == FFD_CAMBER_2D) ||
             (Design_Variable[iDV] == FFD_THICKNESS_2D) ||
             (Design_Variable[iDV] == HICKS_HENNE) ||
