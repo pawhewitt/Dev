@@ -54,6 +54,7 @@ bin_SCRIPTS = \
 mypkgdir = $(prefix)/bin
 nobase_dist_mypkg_DATA= \
     SU2/__init__.py \
+    SU2/Vn_Tools.py\
     SU2/eval/design.py \
     SU2/eval/functions.py \
     SU2/eval/gradients.py \

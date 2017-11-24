@@ -39,7 +39,7 @@ import os, sys, shutil, copy
 import subprocess
 from ..io import Config
 from ..util import which
-from .. import Vn_Tools
+from ..Vn_Tools import Vn_Tools
 
 # ------------------------------------------------------------
 #  Setup
@@ -76,13 +76,36 @@ return_code_map = {
 }
 
 # CAD optimisation pickle file management
-def Run_Vn(config,Module):
-    Vn_Tools=Vn_Tools(config)
-    Vn_data={}
-    Vn_data['wantdisp']=True
-    Vn_data['params']=[0.0, 0.0]
-    Vn_Tools.create_pickle(Vn_data)
+def Run_Vn(config,Module):#
+    # change var name if i doesn't work
 
+    Vn_Run=Vn_Tools(config)
+    Vn_data={}
+    
+    # Get the current array of design variables
+    #Create dictionary object
+    Vn_data["pval"]=config['DV_VALUE_NEW']
+
+    if (Module=='CFD'):
+        Vn_data["wantdisp"]=False
+        Vn_data["wantsens"]=True
+    if (Module=='DEF'):
+        Vn_data["wantdisp"]=True
+        Vn_data["wantsens"]=False
+
+    Vn_Run.Make_Pickle(Vn_data)
+
+    time.sleep(20)
+
+    # Need to work on below code !!!
+    # Remove param--delete when it exists
+    if os.path.exists('/home/phil/Dropbox/Opt_Sync/param.pkl--delete'):
+        os.remove('/home/phil/Dropbox/Opt_Sync/param.pkl--delete') # Run VnProgram
+    while True: # Wait for exisitence of displacement file  
+        if os.path.isfile("/home/phil/Dropbox/Opt_Sync/Displacemnts.txt"):
+            return
+        time.sleep(10)
+    
     return
 
 
@@ -128,7 +151,11 @@ def CFD(config):
         the_Command = 'SU2_CFD ' + tempname
 
     the_Command = build_command( the_Command , processes )
-    Run_Vn(config,'cfd')
+
+    # Create the Param pickle file if using CAD parameterisation
+    if (konfig['DEFINITION_DV']['KIND'][0]=='CAD' and konfig['MATH_PROBLEM']=='CONTINUOUS_ADJOINT'):
+        module='CFD'
+        Run_Vn(konfig,module)
 
     run_command( the_Command )
     
@@ -171,6 +198,11 @@ def DEF(config):
     # must run with rank 1
     processes = konfig['NUMBER_PART']
     
+    # Create the Param pickle file if using CAD paramterisation
+    if (konfig['DEFINITION_DV']['KIND'][0]=='CAD'):
+        Module='DEF'
+        Run_Vn(konfig,Module)
+
     the_Command = 'SU2_DEF ' + tempname
     the_Command = build_command( the_Command , processes )
     run_command( the_Command )

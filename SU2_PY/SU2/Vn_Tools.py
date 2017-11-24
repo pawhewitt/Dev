@@ -3,6 +3,7 @@ import sys,os
 sys.path.append(os.environ['SU2_RUN'])
 import SU2
 import numpy as np
+import pickle 
 
 
 
@@ -21,15 +22,15 @@ class Vn_Tools(object):
 		# get marker points
 		marker_points,marker_nodes=SU2.mesh.tools.get_markerPoints(meshdata,marker)
 		# Points don't need sorted as Vn_program uses kd-tree
-		np.savetxt(open("/home/phewitt/Dropbox/Opt_Sync/Initial_Coords.txt",'w'),marker_points)
+		np.savetxt(open("/home/phil/Dropbox/Opt_Sync/Initial_Coords.txt",'w'),marker_points)
 		
 		return
 
 	def Make_Pickle(self,Vn_data):
-		print ("Required data is {}".format(Vn_data['wantdisp']))
+		pickle.dump(Vn_data,open('/home/phil/Dropbox/Opt_Sync/param.pkl','w'))
 
+		return
 
-
-
-
+	def Remove_Pickle(self)
+		
 		return
