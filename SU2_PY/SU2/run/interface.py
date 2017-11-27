@@ -35,7 +35,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import os, sys, shutil, copy
+import os, sys, shutil, copy, time
 import subprocess
 from ..io import Config
 from ..util import which
@@ -95,17 +95,22 @@ def Run_Vn(config,Module):#
 
     Vn_Run.Make_Pickle(Vn_data)
 
-    time.sleep(20)
-
-    # Need to work on below code !!!
-    # Remove param--delete when it exists
-    if os.path.exists('/home/phil/Dropbox/Opt_Sync/param.pkl--delete'):
-        os.remove('/home/phil/Dropbox/Opt_Sync/param.pkl--delete') # Run VnProgram
-    while True: # Wait for exisitence of displacement file  
-        if os.path.isfile("/home/phil/Dropbox/Opt_Sync/Displacemnts.txt"):
-            return
-        time.sleep(10)
+    # Remove param--delete when it exists in sync folder
+    while True: 
+    	if os.path.isfile('/home/phil/Dropbox/Opt_Sync/Vn_Data.pkl--delete'):
+    		Vn_Run.Remove_Pickle()
+    		break
+    	else :
+    		time.sleep(5)   
     
+    # Check for existence of results before proceeding 
+    while True:
+    	if (os.path.isfile("/home/phil/Dropbox/Opt_Sync/Disp.txt")\
+    		or os.path.isfile("/home/phil/Dropbox/Opt_Sync/Sens.txt")):
+    		break
+    	else:
+    		time.sleep(5)
+  
     return
 
 
@@ -152,13 +157,19 @@ def CFD(config):
 
     the_Command = build_command( the_Command , processes )
 
-    # Create the Param pickle file if using CAD parameterisation
+    # Create the Param pickle file if using CAD parameterisation & Adjoint
     if (konfig['DEFINITION_DV']['KIND'][0]=='CAD' and konfig['MATH_PROBLEM']=='CONTINUOUS_ADJOINT'):
         module='CFD'
         Run_Vn(konfig,module)
 
     run_command( the_Command )
     
+    # If CAD based optimsation then remove the results file
+    if "module" in locals():
+    	Vn_Run=Vn_Tools(konfig)
+    	Vn_Run.Remove_Results(module)
+
+
     #os.remove(tempname)
     
     return
@@ -200,12 +211,17 @@ def DEF(config):
     
     # Create the Param pickle file if using CAD paramterisation
     if (konfig['DEFINITION_DV']['KIND'][0]=='CAD'):
-        Module='DEF'
-        Run_Vn(konfig,Module)
+        module='DEF'
+        Run_Vn(konfig,module)
 
     the_Command = 'SU2_DEF ' + tempname
     the_Command = build_command( the_Command , processes )
     run_command( the_Command )
+
+    # If CAD based optimsation then remove the results file
+    if "module" in locals():
+    	Vn_Run=Vn_Tools(konfig)
+    	Vn_Run.Remove_Results(module)
     
     #os.remove(tempname)
     
