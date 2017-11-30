@@ -201,6 +201,7 @@ int main(int argc, char *argv[]) {
       Gradient_file.open(cstr, ios::out);
     }
     
+
     /*--- If AD mode is enabled we can use it to compute the projection,
      * otherwise we use finite differences. ---*/
     
@@ -284,6 +285,48 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
     Gradient[iDV] = new su2double[nDV_Value];
   }
   
+      /* Begin - Read the sensitivites from sync file */
+    if(config->GetDesign_Variable(0)==CAD){
+    	su2double **Sens;
+    	int nDV;
+    	string line;    	 
+    	// Get the home env var
+    	string shortpath="/Dropbox/Opt_Sync/Sens.txt";
+    	string longpath=getenv("HOME")+shortpath;
+    	const char *path=longpath.c_str();    	
+ 		// Get number of design variables
+ 	  	nDV=config->GetnDV();
+		// open file input stream var
+		ifstream SensFile;
+		cout <<"path of syns file is "<<path<<endl;
+ 	  	SensFile.open(path);
+
+ 	  	// if (!SensFile){
+ 	  	// 	cerr<<"Can't Find Sens.txt in sync Folder"<<endl;
+ 	  	// 	exit(1);
+ 	  	// }
+ 	  	// else{
+ 	  		cout<<"Reading Sens.txt File"<<endl;
+ 	  		//Sens= new double*[nDV];
+ 	  		// expand Sens as you progress through the file
+ 	  		// Skip the header
+ 	  		// SensFile.seekg(1);
+ 	  		cout<<getline(SensFile,line)<<endl;
+ 	  		// while SensFile>>line{
+
+
+ 	  		// }
+ 	  	// }
+
+
+ 	  	SensFile.close();
+  	}
+    /* End - Read the sensitivites from sync file */
+
+
+
+
+
   /*--- Continuous adjoint gradient computation ---*/
   
   if (rank == MASTER_NODE)

@@ -77,7 +77,8 @@ return_code_map = {
 
 # CAD optimisation pickle file management
 def Run_Vn(config,Module):#
-    # change var name if i doesn't work
+    # Get the home environmental path
+    home=os.getenv('HOME')
 
     Vn_Run=Vn_Tools(config)
     Vn_data={}
@@ -97,7 +98,7 @@ def Run_Vn(config,Module):#
 
     # Remove param--delete when it exists in sync folder
     while True: 
-    	if os.path.isfile('/home/phil/Dropbox/Opt_Sync/Vn_Data.pkl--delete'):
+    	if os.path.isfile(home+'/Dropbox/Opt_Sync/Vn_Data.pkl--delete'):
     		Vn_Run.Remove_Pickle()
     		break
     	else :
@@ -105,8 +106,8 @@ def Run_Vn(config,Module):#
     
     # Check for existence of results before proceeding 
     while True:
-    	if (os.path.isfile("/home/phil/Dropbox/Opt_Sync/Disp.txt")\
-    		or os.path.isfile("/home/phil/Dropbox/Opt_Sync/Sens.txt")):
+    	if (os.path.isfile(home+"/Dropbox/Opt_Sync/Disp.txt")\
+    		or os.path.isfile(home+"/Dropbox/Opt_Sync/Sens.txt")):
     		break
     	else:
     		time.sleep(5)
