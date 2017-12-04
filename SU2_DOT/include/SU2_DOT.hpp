@@ -41,6 +41,8 @@
 #include <iomanip>
 #include <cmath>
 #include <stdlib.h>
+#include <vector>
+
 
 #include "../../Common/include/geometry_structure.hpp"
 #include "../../Common/include/config_structure.hpp"

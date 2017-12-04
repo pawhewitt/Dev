@@ -287,10 +287,12 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
   
       /* Begin - Read the sensitivites from sync file */
     if(config->GetDesign_Variable(0)==CAD){
-    	su2double **Sens;
+    	//su2double *Sens;
+    	
+
     	int nDV;
     	string line;    	 
-    	// Get the home env var
+    	// Make path
     	string shortpath="/Dropbox/Opt_Sync/Sens.txt";
     	string longpath=getenv("HOME")+shortpath;
     	const char *path=longpath.c_str();    	
@@ -301,22 +303,59 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
 		cout <<"path of syns file is "<<path<<endl;
  	  	SensFile.open(path);
 
- 	  	// if (!SensFile){
- 	  	// 	cerr<<"Can't Find Sens.txt in sync Folder"<<endl;
- 	  	// 	exit(1);
- 	  	// }
- 	  	// else{
+ 	  	
+    	// testing - start
+    	// creating nDV*2 vector
+    	
+    	vector<double> sens1(9);
+    	vector<vector<double> > sens2(2,sens1);
+		string element;	
+		double cell;
+
+
+    	//testing - end
+
+
+ 	  	if (!SensFile){
+ 	  		cerr<<"Can't Find Sens.txt in sync Folder"<<endl;
+ 	  		exit(1);
+ 	  	}
+ 	  	else{
  	  		cout<<"Reading Sens.txt File"<<endl;
- 	  		//Sens= new double*[nDV];
+ 	  	//	Sens= new double*[nDV];
  	  		// expand Sens as you progress through the file
- 	  		// Skip the header
- 	  		// SensFile.seekg(1);
- 	  		cout<<getline(SensFile,line)<<endl;
- 	  		// while SensFile>>line{
+ 	  		//Skip the header
+ 	  		getline(SensFile,line);
+ 	  		stringstream lineStream(line);
+
+ 	  		// while(getline(lineStream,element,',')){
+ 	  		// 	cell=atof(element.c_str());
+ 	  		// 	cout<<cell<<endl;
+ 	  		// 	//sens2[0].push_back(cell);
+ 	  		// }
+
+
+ 	  		while (SensFile>>line) {
+ 	  			for (int i=0;i<nDV;i++){
+ 	  				stringstream is(line);
+ 	  				is>>cout;	
+ 	  			}
+ 	  		}
 
 
  	  		// }
- 	  	// }
+
+ 	  		
+
+
+			//print out the vector storing the data
+ 	  		for (int i=0;i<sens2.size();i++){
+				for (int j=0;j<sens2[i].size();j++)
+				cout<<sens2[i][j]<< " ";
+			cout<<endl;
+			}
+
+ 	  	}
 
 
  	  	SensFile.close();
