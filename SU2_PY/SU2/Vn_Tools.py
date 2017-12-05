@@ -24,6 +24,8 @@ class Vn_Tools(object):
 		# get marker points
 		marker_points,marker_nodes=SU2.mesh.tools.get_markerPoints(meshdata,marker)
 		# Points don't need sorted as Vn_program uses kd-tree
+		
+	
 		np.savetxt(open(home+"/Dropbox/Opt_Sync/Initial_Design.txt",'w'),marker_points)
 		
 		return

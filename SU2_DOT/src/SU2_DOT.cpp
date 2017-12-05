@@ -285,12 +285,17 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
     Gradient[iDV] = new su2double[nDV_Value];
   }
   
-      /* Begin - Read the sensitivites from sync file */
-    if(config->GetDesign_Variable(0)==CAD){
-    	//su2double *Sens;
-    	
+    /* Begin - Read the sensitivites from sync file */
 
-    	int nDV;
+  	// Create vector matrix to store Sens
+
+  	vector<double> sens1;
+	vector<vector<double> > sens2(nDV,sens1);
+    
+    if(config->GetDesign_Variable(0)==CAD){
+    	cout<<"Using Cad parameterisation"<<endl;
+    
+       	int nDV;
     	string line;    	 
     	// Make path
     	string shortpath="/Dropbox/Opt_Sync/Sens.txt";
@@ -300,71 +305,44 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
  	  	nDV=config->GetnDV();
 		// open file input stream var
 		ifstream SensFile;
-		cout <<"path of syns file is "<<path<<endl;
  	  	SensFile.open(path);
-
- 	  	
-    	// testing - start
-    	// creating nDV*2 vector
-    	
-    	vector<double> sens1(9);
-    	vector<vector<double> > sens2(2,sens1);
+			
 		string element;	
-		double cell;
-
-
-    	//testing - end
-
-
+		
  	  	if (!SensFile){
  	  		cerr<<"Can't Find Sens.txt in sync Folder"<<endl;
  	  		exit(1);
  	  	}
  	  	else{
  	  		cout<<"Reading Sens.txt File"<<endl;
- 	  	//	Sens= new double*[nDV];
- 	  		// expand Sens as you progress through the file
- 	  		//Skip the header
- 	  		getline(SensFile,line);
- 	  		stringstream lineStream(line);
+   	  		
 
- 	  		// while(getline(lineStream,element,',')){
- 	  		// 	cell=atof(element.c_str());
- 	  		// 	cout<<cell<<endl;
- 	  		// 	//sens2[0].push_back(cell);
- 	  		// }
+   	  		int linecount=0;
+   	  		while (SensFile.good()){
+ 				int i=0;
 
+ 	  			getline(SensFile,line);
+ 	  			stringstream is(line);
+ 	  			// Split string stream
+ 	  		 	while(getline(is,element,',')){
+ 	  		 		// store data after Point I.D. 
+ 	  		 		if (i>0) sens2[i-1].push_back(atof(element.c_str()));
+ 	  				i++;
 
- 	  		while (SensFile>>line) {
- 	  			for (int i=0;i<nDV;i++){
- 	  				stringstream is(line);
- 	  				is>>cout;	
  	  			}
+ 	  			//temp - start
+ 	  			// cout<<sens2[0][linecount]<<"\t"<<sens2[1][linecount]<<endl;
+ 	  			//temp - end
+ 	  		linecount++;
+
  	  		}
-
-
- 	  		// }
-
  	  		
-
-
-			//print out the vector storing the data
- 	  		for (int i=0;i<sens2.size();i++){
-				for (int j=0;j<sens2[i].size();j++)
-				cout<<sens2[i][j]<< " ";
-			cout<<endl;
-			}
-
  	  	}
 
 
  	  	SensFile.close();
   	}
     /* End - Read the sensitivites from sync file */
-
-
-
-
 
   /*--- Continuous adjoint gradient computation ---*/
   
@@ -525,6 +503,12 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
         cout <<"Custom design variable will be used in external script" << endl;
     }
     
+    else if(config->GetDesign_Variable(iDV)== CAD ){
+    	if(rank==MASTER_NODE)
+    		cout<<"Cad Parameter = "<<iDV<<endl;
+    }
+
+
     /*--- Design variable not implement ---*/
     
     else {
@@ -545,6 +529,11 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
         
         delta_eps = config->GetDV_Value(iDV);
         
+        //test - start
+        int node=0;
+        //test - end
+
+
         for (iPoint = 0; iPoint < geometry->GetnPoint(); iPoint++)
           UpdatePoint[iPoint] = true;
         
@@ -557,8 +546,26 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
                 
                 Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
                 VarCoord = geometry->vertex[iMarker][iVertex]->GetVarCoord();
-                Sensitivity = geometry->vertex[iMarker][iVertex]->GetAuxVar();
                 
+                // Sensitivity = geometry->vertex[iMarker][iVertex]->GetAuxVar();
+                
+                //Temp Code - Start
+                // double *coord;
+                // coord=geometry->vertex[iMarker][iVertex]->GetCoord();
+                // // cout<<coord[0]<<"\t"<<coord[1]<<endl;
+
+                // cout<<iPoint<<endl;
+                if(config->GetDesign_Variable(iDV)!=CAD)
+                Sensitivity = geometry->vertex[iMarker][iVertex]->GetAuxVar();
+                //else Sensitivity=sens2[iDV][iVertex];
+
+                else Sensitivity=sens2[iDV][node];
+                node++;
+                cout<<Sensitivity<<endl;
+
+                //Temp Code - End
+
+
                 dS = 0.0;
                 for (iDim = 0; iDim < geometry->GetnDim(); iDim++) {
                   dS += Normal[iDim]*Normal[iDim];
