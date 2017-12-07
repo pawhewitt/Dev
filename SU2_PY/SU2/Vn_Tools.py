@@ -15,20 +15,20 @@ class Vn_Tools(object):
 		self.mesh=config['MESH_FILENAME']
 		self.home=os.getenv("HOME")
 		
-	def Mesh_Out(self):
-		mesh=self.mesh
-		marker=self.marker
-		home=self.home
-		# read entire mesh 
-		meshdata=SU2.mesh.tools.read(mesh)
-		# get marker points
-		marker_points,marker_nodes=SU2.mesh.tools.get_markerPoints(meshdata,marker)
-		# Points don't need sorted as Vn_program uses kd-tree
+	# def Mesh_Out(self):
+	# 	mesh=self.mesh
+	# 	marker=self.marker
+	# 	home=self.home
+	# 	# read entire mesh 
+	# 	meshdata=SU2.mesh.tools.read(mesh)
+	# 	# get marker points
+	# 	marker_points,marker_nodes=SU2.mesh.tools.get_markerPoints(meshdata,marker)
+	# 	# Points don't need sorted as Vn_program uses kd-tree
 		
 	
-		np.savetxt(open(home+"/Dropbox/Opt_Sync/Initial_Design.txt",'w'),marker_points)
+	# 	np.savetxt(open(home+"/Dropbox/Opt_Sync/Initial_Design.txt",'w'),marker_points)
 		
-		return
+	# 	return
 
 	def Make_Pickle(self,Vn_data):
 		home=self.home

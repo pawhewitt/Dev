@@ -559,10 +559,18 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
                 Sensitivity = geometry->vertex[iMarker][iVertex]->GetAuxVar();
                 //else Sensitivity=sens2[iDV][iVertex];
 
-                else Sensitivity=sens2[iDV][node];
+                else {
+                Sensitivity=sens2[iDV][node];
+                
+                double *coord;
+                coord=geometry->vertex[iMarker][iVertex]->GetCoord();
+                cout<<"Sensitivity Value = "<<Sensitivity<<"\t"
+                << "iVertex Value = "<<"\t"<<iVertex<<"\t"
+                << "node value = "<<node<<"\t"
+                << "X Coord = "<<coord[0]<<"\t"
+                << "Y Coord = "<<coord[1]<<endl;
+                }
                 node++;
-                cout<<Sensitivity<<endl;
-
                 //Temp Code - End
 
 

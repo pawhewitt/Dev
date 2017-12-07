@@ -165,10 +165,7 @@ def CFD(config):
 
     run_command( the_Command )
     
-    # If CAD based optimsation then remove the results file
-    if "module" in locals():
-    	Vn_Run=Vn_Tools(konfig)
-    	Vn_Run.Remove_Results(module)
+ 
 
 
     #os.remove(tempname)
@@ -256,6 +253,11 @@ def DOT(config):
     the_Command = build_command( the_Command , processes )
     run_command( the_Command )
     
+       # If CAD based optimsation then remove the results file
+    if "module" in locals():
+        Vn_Run=Vn_Tools(konfig)
+        Vn_Run.Remove_Results(module)
+
     #os.remove(tempname)
     
     return

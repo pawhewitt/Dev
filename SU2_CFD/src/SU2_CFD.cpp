@@ -74,6 +74,25 @@ int main(int argc, char *argv[]) {
   nDim  = CConfig::GetnDim(config->GetMesh_FileName(), config->GetMesh_FileFormat());
   fsi = config->GetFSI_Simulation();
 
+  /* Start - Exporting the Initial Goemetry to the Sync Folder if using CAD parameterisation */
+  // Declare required Classes
+  unsigned long val;
+  CGeometry *geometry=NULL;
+  geometry = new CGeometry();
+  val=geometry->GetnPoints();
+  cout<<"CFD printout, val is ="<<val<<endl;
+
+
+
+
+
+  /* End - Exporting the Initial Goemetry to the Sync Folder if using CAD parameterisation */
+
+
+
+
+
+
   /*--- First, given the basic information about the number of zones and the
    solver types from the config, instantiate the appropriate driver for the problem
    and perform all the preprocessing. ---*/
