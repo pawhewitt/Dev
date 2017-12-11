@@ -77,11 +77,63 @@ int main(int argc, char *argv[]) {
   /* Start - Exporting the Initial Goemetry to the Sync Folder if using CAD parameterisation */
   // Declare required Classes
   unsigned long val;
-  CGeometry *geometry=NULL;
-  geometry = new CGeometry();
-  val=geometry->GetnPoints();
-  cout<<"CFD printout, val is ="<<val<<endl;
+  unsigned short iZone,iMarker,iVertex;
+  bool *UpdatePoint;
 
+
+
+  CConfig **config_container      =NULL;
+  CGeometry **geometry_container  =NULL;
+
+  config_container = new CConfig*[nZone];
+  geometry_container = new CGeometry*[nZone];
+
+  for (iZone = 0; iZone<nZone;iZone++){
+    config_container[iZone] = new CConfig(config_file_name, SU2_CFD, iZone, nZone, 0, VERB_HIGH);
+  
+    CGeometry *geometry_aux = NULL;
+
+    geometry_aux = new CPhysicalGeometry(config_container[iZone], iZone, nZone);
+
+    geometry_container[iZone] = new CPhysicalGeometry(geometry_aux, config_container[iZone]);
+
+    delete geometry_aux;
+  }
+
+  UpdatePoint=new bool[geometry_container[0]->GetnPoint()];
+
+  // val=geometry_container[0]->GetnVertex(0);
+  // cout<<"val is "<<val<<endl;
+ 
+  // val=geometry_container[ZONE_0]->GetnVertex(marker);
+
+
+        for (unsigned long iPoint = 0; iPoint < geometry_container[ZONE_0]->GetnPoint(); iPoint++)
+          UpdatePoint[iPoint] = true;
+
+  for (iMarker = 0; iMarker < config_container[ZONE_0]->GetnMarker_All(); iMarker++) {
+    cout<<"gate_1"<<endl;
+    if (config_container[ZONE_0]->GetMarker_All_DV(iMarker) == YES) {
+      cout<<"gate_2"<<endl;
+      val=geometry_container[ZONE_0]->GetnVertex(0);
+      cout<<"val is "<<val<<endl;
+      for (int iVertex = 0; iVertex < geometry_container[ZONE_0]->nVertex[iMarker]; iVertex++) {
+        cout<<"gate_3"<<endl;
+        unsigned long iPoint = geometry_container[ZONE_0]->vertex[iMarker][iVertex]->GetNode();
+        if ((iPoint < geometry_container[ZONE_0]->GetnPointDomain())) {
+
+          cout<<"iPoint is "<<iPoint<<endl;
+          // double *coord;
+          // coord=geometry_container[ZONE_0]->vertex[iMarker][iVertex]->GetCoord();
+          // cout<<"iVertex Value = "<<"\t"<<iVertex<<"\t"
+          // << "X Coord = "<<coord[0]<<"\t"
+          // << "Y Coord = "<<coord[1]<<endl;
+
+        }
+      }
+    }
+  }
+  
 
 
 
