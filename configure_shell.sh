@@ -5,6 +5,6 @@
 # Enable Everything
 #./configure prefix=/usr/local/SU2_CAD
 
-# Enable CFD
+# Enable CFD & DOT
 
-./configure prefix=/usr/local/SU2_CAD --disable-GEO --disable-IDE --disable-MSH --disable-SOL --disable-DEF --disable-DOT
+./configure prefix=/usr/local/SU2_CAD --disable-GEO --disable-IDE --disable-MSH --disable-SOL --disable-DEF 

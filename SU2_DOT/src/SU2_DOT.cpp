@@ -330,9 +330,7 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
  	  				i++;
 
  	  			}
- 	  			//temp - start
- 	  			// cout<<sens2[0][linecount]<<"\t"<<sens2[1][linecount]<<endl;
- 	  			//temp - end
+ 	
  	  		linecount++;
 
  	  		}
@@ -550,26 +548,27 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
                 // Sensitivity = geometry->vertex[iMarker][iVertex]->GetAuxVar();
                 
                 //Temp Code - Start
-                // double *coord;
-                // coord=geometry->vertex[iMarker][iVertex]->GetCoord();
-                // // cout<<coord[0]<<"\t"<<coord[1]<<endl;
+                double *coord;
+                //coord=geometry->vertex[iMarker][iVertex]->GetCoord();
+                coord=geometry->node[iPoint]->GetCoord();
+                cout<<coord[0]<<"\t"<<coord[1]<<endl;
 
                 // cout<<iPoint<<endl;
                 if(config->GetDesign_Variable(iDV)!=CAD)
                 Sensitivity = geometry->vertex[iMarker][iVertex]->GetAuxVar();
                 //else Sensitivity=sens2[iDV][iVertex];
 
-                else {
+                else 
                 Sensitivity=sens2[iDV][node];
                 
-                double *coord;
-                coord=geometry->vertex[iMarker][iVertex]->GetCoord();
-                cout<<"Sensitivity Value = "<<Sensitivity<<"\t"
-                << "iVertex Value = "<<"\t"<<iVertex<<"\t"
-                << "node value = "<<node<<"\t"
-                << "X Coord = "<<coord[0]<<"\t"
-                << "Y Coord = "<<coord[1]<<endl;
-                }
+                // double *coord;
+                // coord=geometry->vertex[iMarker][iVertex]->GetCoord();
+                // cout<<"Sensitivity Value = "<<Sensitivity<<"\t"
+                // << "iVertex Value = "<<"\t"<<iVertex<<"\t"
+                // << "node value = "<<node<<"\t"
+                // << "X Coord = "<<coord[0]<<"\t"
+                // << "Y Coord = "<<coord[1]<<endl;
+                // }
                 node++;
                 //Temp Code - End
 

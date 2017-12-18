@@ -74,77 +74,7 @@ int main(int argc, char *argv[]) {
   nDim  = CConfig::GetnDim(config->GetMesh_FileName(), config->GetMesh_FileFormat());
   fsi = config->GetFSI_Simulation();
 
-  /* Start - Exporting the Initial Goemetry to the Sync Folder if using CAD parameterisation */
-  // Declare required Classes
-  unsigned long val;
-  unsigned short iZone,iMarker,iVertex;
-  bool *UpdatePoint;
-
-
-
-  CConfig **config_container      =NULL;
-  CGeometry **geometry_container  =NULL;
-
-  config_container = new CConfig*[nZone];
-  geometry_container = new CGeometry*[nZone];
-
-  for (iZone = 0; iZone<nZone;iZone++){
-    config_container[iZone] = new CConfig(config_file_name, SU2_CFD, iZone, nZone, 0, VERB_HIGH);
   
-    CGeometry *geometry_aux = NULL;
-
-    geometry_aux = new CPhysicalGeometry(config_container[iZone], iZone, nZone);
-
-    geometry_container[iZone] = new CPhysicalGeometry(geometry_aux, config_container[iZone]);
-
-    delete geometry_aux;
-  }
-
-  UpdatePoint=new bool[geometry_container[0]->GetnPoint()];
-
-  // val=geometry_container[0]->GetnVertex(0);
-  // cout<<"val is "<<val<<endl;
- 
-  // val=geometry_container[ZONE_0]->GetnVertex(marker);
-
-
-        for (unsigned long iPoint = 0; iPoint < geometry_container[ZONE_0]->GetnPoint(); iPoint++)
-          UpdatePoint[iPoint] = true;
-
-  for (iMarker = 0; iMarker < config_container[ZONE_0]->GetnMarker_All(); iMarker++) {
-    cout<<"gate_1"<<endl;
-    if (config_container[ZONE_0]->GetMarker_All_DV(iMarker) == YES) {
-      cout<<"gate_2"<<endl;
-      val=geometry_container[ZONE_0]->GetnVertex(0);
-      cout<<"val is "<<val<<endl;
-      for (int iVertex = 0; iVertex < geometry_container[ZONE_0]->nVertex[iMarker]; iVertex++) {
-        cout<<"gate_3"<<endl;
-        unsigned long iPoint = geometry_container[ZONE_0]->vertex[iMarker][iVertex]->GetNode();
-        if ((iPoint < geometry_container[ZONE_0]->GetnPointDomain())) {
-
-          cout<<"iPoint is "<<iPoint<<endl;
-          // double *coord;
-          // coord=geometry_container[ZONE_0]->vertex[iMarker][iVertex]->GetCoord();
-          // cout<<"iVertex Value = "<<"\t"<<iVertex<<"\t"
-          // << "X Coord = "<<coord[0]<<"\t"
-          // << "Y Coord = "<<coord[1]<<endl;
-
-        }
-      }
-    }
-  }
-  
-
-
-
-
-  /* End - Exporting the Initial Goemetry to the Sync Folder if using CAD parameterisation */
-
-
-
-
-
-
   /*--- First, given the basic information about the number of zones and the
    solver types from the config, instantiate the appropriate driver for the problem
    and perform all the preprocessing. ---*/

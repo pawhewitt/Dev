@@ -183,6 +183,57 @@ CDriver::CDriver(char* confFile,
   Partition_Analysis(geometry_container[ZONE_0][MESH_0], config_container[ZONE_0]);
 #endif
 
+  // Start - Outputting Geometry
+  // Doesn't work with Onera yet 
+
+  if (config_container[1]->GetDesign_Variable(0)==CAD) cout<< "found CAD param"<<endl; // temp
+
+
+  // Check if CAD Parmaterisation is being used
+	if (config_container[0]->GetDesign_Variable(0)==CAD){
+
+	  // Check for existance of Intial_Design.txt in sync folder
+	  string shortpath="/Dropbox/Opt_Sync/Initial_Design.txt";
+	  string longpath=getenv("HOME")+shortpath;
+	  const char *path=longpath.c_str(); // Convert string to char for ifstream args
+	  // open file input stream var
+	  ifstream Design_File;
+	 	  	Design_File.open(path);
+		
+ 	if(!Design_File) {
+
+	 	ofstream Design_File; // This the best way to do this?
+	 	Design_File.open(path);
+
+	 	cout<<"Exporting initial geometry"<<endl;
+
+	  unsigned short iMarker;
+	  double *coord;
+	  unsigned long iPoint,iVertex;
+
+	  for (iMarker = 0; iMarker < config_container[0]->GetnMarker_All(); iMarker++) {
+	    if (config_container[0]->GetMarker_All_DV(iMarker) == YES) {
+	      for (iVertex = 0; iVertex < geometry_container[0][0]->nVertex[iMarker]; iVertex++) {
+	      iPoint = geometry_container[0][0]->vertex[iMarker][iVertex]->GetNode();
+	        if ((iPoint < geometry_container[0][0]->GetnPointDomain())) {
+	       // Why node-> not vertex-> as it is in SU2_DOT? 
+	          coord=geometry_container[0][0]->node[iPoint]->GetCoord();
+	          for (int iDim=0;iDim<geometry_container[0][0]->GetnDim();iDim++)
+	          	Design_File<<coord[iDim]<<"\t";
+	          Design_File<<"\n";	
+
+	          // Design_File<<coord[0]<<"\t"<<coord[1]<<endl;
+
+	        }
+	      }
+	    }
+	  }  
+  }
+  Design_File.close();
+}
+
+  // End - Outputing Geometry
+
   /*--- Output some information about the driver that has been instantiated for the problem. ---*/
 
   if (rank == MASTER_NODE)
