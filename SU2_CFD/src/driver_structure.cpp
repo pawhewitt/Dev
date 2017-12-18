@@ -186,11 +186,19 @@ CDriver::CDriver(char* confFile,
   // Start - Outputting Geometry
   // Doesn't work with Onera yet 
 
-  if (config_container[1]->GetDesign_Variable(0)==CAD) cout<< "found CAD param"<<endl; // temp
+  cout<<"gate_1"<<endl;
 
+
+
+
+  //if (config_container[1]->GetDesign_Variable(0)==CAD) cout<< "found CAD param"<<endl; // temp
+
+  cout<<"gate_2"<<endl;
 
   // Check if CAD Parmaterisation is being used
 	if (config_container[0]->GetDesign_Variable(0)==CAD){
+
+    cout<<"gate_3"<<endl;
 
 	  // Check for existance of Intial_Design.txt in sync folder
 	  string shortpath="/Dropbox/Opt_Sync/Initial_Design.txt";
@@ -205,7 +213,7 @@ CDriver::CDriver(char* confFile,
 	 	ofstream Design_File; // This the best way to do this?
 	 	Design_File.open(path);
 
-	 	cout<<"Exporting initial geometry"<<endl;
+	 	cout<<"---------------Exporting initial geometry into sync folder-----------------"<<endl;
 
 	  unsigned short iMarker;
 	  double *coord;
@@ -221,10 +229,7 @@ CDriver::CDriver(char* confFile,
 	          for (int iDim=0;iDim<geometry_container[0][0]->GetnDim();iDim++)
 	          	Design_File<<coord[iDim]<<"\t";
 	          Design_File<<"\n";	
-
-	          // Design_File<<coord[0]<<"\t"<<coord[1]<<endl;
-
-	        }
+          }
 	      }
 	    }
 	  }  
