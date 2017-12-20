@@ -184,21 +184,9 @@ CDriver::CDriver(char* confFile,
 #endif
 
   // Start - Outputting Geometry
-  // Doesn't work with Onera yet 
-
-  cout<<"gate_1"<<endl;
-
-
-
-
-  //if (config_container[1]->GetDesign_Variable(0)==CAD) cout<< "found CAD param"<<endl; // temp
-
-  cout<<"gate_2"<<endl;
-
+ 
   // Check if CAD Parmaterisation is being used
 	if (config_container[0]->GetDesign_Variable(0)==CAD){
-
-    cout<<"gate_3"<<endl;
 
 	  // Check for existance of Intial_Design.txt in sync folder
 	  string shortpath="/Dropbox/Opt_Sync/Initial_Design.txt";
@@ -213,10 +201,10 @@ CDriver::CDriver(char* confFile,
 	 	ofstream Design_File; // This the best way to do this?
 	 	Design_File.open(path);
 
-	 	cout<<"---------------Exporting initial geometry into sync folder-----------------"<<endl;
+	 	cout << endl <<"---------------Exporting initial geometry into sync folder-----------------"<< endl;
 
 	  unsigned short iMarker;
-	  double *coord;
+	  double *coord,*normal;
 	  unsigned long iPoint,iVertex;
 
 	  for (iMarker = 0; iMarker < config_container[0]->GetnMarker_All(); iMarker++) {
@@ -226,9 +214,13 @@ CDriver::CDriver(char* confFile,
 	        if ((iPoint < geometry_container[0][0]->GetnPointDomain())) {
 	       // Why node-> not vertex-> as it is in SU2_DOT? 
 	          coord=geometry_container[0][0]->node[iPoint]->GetCoord();
-	          for (int iDim=0;iDim<geometry_container[0][0]->GetnDim();iDim++)
-	          	Design_File<<coord[iDim]<<"\t";
-	          Design_File<<"\n";	
+            normal=geometry_container[0][0]->vertex[iMarker][iVertex]->GetNormal();
+            // Export Geometry, creating empty dimension if need be
+            Design_File<<coord[0]<<"\t"<<coord[1]<<"\t";
+            if (geometry_container[0][0]->GetnDim()==3) Design_File<<coord[2]<<"\n";
+            else Design_File<<"0.0"<<"\t";
+            // Export y normal
+            Design_File<<normal[1]<<"\n";
           }
 	      }
 	    }

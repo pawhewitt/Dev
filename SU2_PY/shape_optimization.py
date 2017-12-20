@@ -118,13 +118,6 @@ def shape_optimization( filename                           ,
     if quiet: config.CONSOLE = 'CONCISE'
     config.GRADIENT_METHOD = gradient
 
-
-    # To be removed and relocated to c++ code
-    # # Check if CAD
-    # if (config['DEFINITION_DV']['KIND'][0]=="CAD"):
-    #     Vn_tools=SU2.Vn_Tools(config)   
-    #     Vn_tools.Mesh_Out()     
-
     
     its         = int ( config.OPT_ITERATIONS )
     accu        = float ( config.OPT_ACCURACY )
