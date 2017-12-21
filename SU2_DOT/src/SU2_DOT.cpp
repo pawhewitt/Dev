@@ -318,10 +318,13 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
    	  		
    	  		int linecount=0;
    	  		
+   	  		getline(SensFile,line); // Skip Header
+
    	  		while (SensFile.good()){
  				int i=0;
 
  	  			getline(SensFile,line);
+ 	  			
  	  			stringstream is(line);
  	  			// Split string stream
  	  		 	while(getline(is,element,',')){
@@ -494,12 +497,6 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
         cout <<"Custom design variable will be used in external script" << endl;
     }
     
-    else if(config->GetDesign_Variable(iDV)== CAD ){
-    	if(rank==MASTER_NODE)
-    		cout<<"Cad Parameter = "<<iDV<<endl;
-    }
-
-
     /*--- Design variable not implement ---*/
     
     else {
@@ -533,39 +530,27 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
                 Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
                 VarCoord = geometry->vertex[iMarker][iVertex]->GetVarCoord();
                 
-                cout<<endl<<"gate_1"<<endl;
-
-
-        //         if(config->GetDesign_Variable(iDV)!=CAD){// If NOT CAD
-        //         	Sensitivity = geometry->vertex[iMarker][iVertex]->GetAuxVar();
-        //         	cout<<endl<<"gate_2"<<endl;
-        //         }
+    
+                Sensitivity = geometry->vertex[iMarker][iVertex]->GetAuxVar();
+                          
+                if(config->GetDesign_Variable(iDV)!=CAD) { // If NOT CAD    
+			    	dS = 0.0;
+                	
+                	for (iDim = 0; iDim < geometry->GetnDim(); iDim++) {
+                  		dS += Normal[iDim]*Normal[iDim];
+                  		deps[iDim] = VarCoord[iDim] / delta_eps;
+                		}
+                		dS = sqrt(dS);
+                		dalpha_deps = 0.0;
+                	
+                	for (iDim = 0; iDim < geometry->GetnDim(); iDim++) {
+                 		dalpha[iDim] = Normal[iDim] / dS;
+                		dalpha_deps -= dalpha[iDim]*deps[iDim];
+                	}
+            	}
                 
-        //         if(config->GetDesign_Variable(iDV)==CAD){// If CAD
-        //         	Sensitivity=sens2[iDV][iVertex]; // Use CAD sens vector
-	       //          cout<<endl<<"gate_3"<<endl;
-     			// }
+            	else dalpha_deps=sens2[iDV][iVertex]; // CAD
 
-                cout<<endl<<"gate_2"<<endl;
-				
-				Sensitivity=sens2[iDV][iVertex]; // Use CAD sens vector
-
-				cout<<endl<<"gate_3"<<endl;
-
-
-                dS = 0.0;
-                for (iDim = 0; iDim < geometry->GetnDim(); iDim++) {
-                  dS += Normal[iDim]*Normal[iDim];
-                  deps[iDim] = VarCoord[iDim] / delta_eps;
-                }
-                dS = sqrt(dS);
-                
-                dalpha_deps = 0.0;
-                for (iDim = 0; iDim < geometry->GetnDim(); iDim++) {
-                  dalpha[iDim] = Normal[iDim] / dS;
-                  dalpha_deps -= dalpha[iDim]*deps[iDim];
-                }
-                
                 my_Gradient += Sensitivity*dalpha_deps;
                 UpdatePoint[iPoint] = false;
               }
