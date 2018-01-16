@@ -37,6 +37,10 @@
 #pragma once
 
 #include "./mpi_structure.hpp"
+/* ph start */
+#include <stdlib.h>
+#include <vector>
+/*ph finish */
 
 #include <iostream>
 #include <cstdlib>
@@ -1325,6 +1329,20 @@ public:
 	 * \param[in] ResetDef - Reset the deformation before starting a new one.
 	 */
 	void SetSurface_Bump(CGeometry *boundary, CConfig *config, unsigned short iDV, bool ResetDef);
+
+  /* ph start
+
+
+    /*! 
+   * \brief Set a CAD deformation of the aerofoil 
+   * \param[in] boundary - Geometry of the boundary.
+   * \param[in] config - Definition of the particular problem.
+   */
+   
+  void SetCAD(CGeometry *boundary,CConfig *config);
+
+  /* ph end
+
 
   /*!
    * \brief Set a Hicks-Henne deformation bump functions on an airfoil.
