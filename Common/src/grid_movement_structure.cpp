@@ -5304,14 +5304,14 @@ void CSurfaceMovement::SetHicksHenne(CGeometry *boundary, CConfig *config, unsig
   
 }
 
-/* ph 16 Jan start */
+/* ph 26 Jan start */
 
 void CSurfaceMovement::SetCAD(CGeometry *boundary,CConfig *config) {
 	unsigned long iVertex,iPoint;
 	unsigned short iMarker;
 	string line,element;
 	double VarCoord[3];
-	int Dim=boundary->GetnDim();
+	int Dim=boundary->GetnDim(),nDV;
 	bool *UpdatePoint;
 	
 	UpdatePoint = new bool[boundary->GetnPoint()];
@@ -5327,67 +5327,69 @@ void CSurfaceMovement::SetCAD(CGeometry *boundary,CConfig *config) {
 
 	/* Read and store the varcoords from the displacement file */
 	ipf1.open(path);
-	
-	if (!ipf1){
+
+	vector<vector<double> > disp; // 2D vector
+	vector<double> point;//vector for each point 
+	 
+	if (!ipf1){ //  Check existance of file 
  		cerr<<"Can't Find Sens.txt in sync Folder"<<endl;
  	  exit(1);
  	}
  	
-	else{
-
-
+	else{ // File found
 		/* Need to account for shared nodes at marker interfaces */
 		
 		for (iPoint=0;iPoint<boundary->GetnPoint();iPoint++){
 			UpdatePoint[iPoint]=true;
 		}
 		
-		//temp code
 		cout<<endl<<"----- Reading Displacements from File -------"<<endl;
 
-		for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++){
-			for (iVertex = 0; iVertex < boundary->nVertex[iMarker]; iVertex++) {
-				/* Get the ID of the current node */
-				iPoint=boundary->vertex[iMarker][iVertex]->GetNode(); 
-				/* Check if the node has been updated already */
-				if ((iPoint<boundary->GetnPointDomain()) && UpdatePoint[iPoint]){
-					VarCoord[0] = 0.0; VarCoord[1] = 0.0; VarCoord[2] = 0.0;
-					if (config->GetMarker_All_DV(iMarker) == YES) {
-						
-						//Redo this code, it shouldn't be in the loop 
-				  	while (ipf1.good()){
-        			int i=0;
-		          getline(ipf1,line);
-		          stringstream is(line);
-    		      // Split string stream
-        		  while(getline(is,element,',')){
-            		if (i>0) VarCoord[i-1]=(atof(element.c_str())); // store data after Point I.D. 
-            			i++;
-          			}
-        			}
-						// is the code below correct?
-						// getline(ipf1,line);
-						// stringstream is(line);
-						// if(Dim==3)	ss>>VarCoord[0]>>VarCoord[1]>>VarCoord[2];
-						// else ss>>VarCoord[1];
-				
-					}
+		int linecount=0;
+   	getline(ipf1,line); // Skip Header
+		
+ 		while (ipf1.good()){
+ 			getline(ipf1,line);
+ 			stringstream is(line);
+ 			int i=0;
+ 			disp.push_back(point);
+ 			while(getline(is,element,',')){
+				if (i>0) disp[linecount].push_back(atof(element.c_str())); 
+ 				i++;
+ 			}
+			linecount++;
+ 		}
+ 	}
+ 	
+ 	ipf1.close();
 
-				// temp - disp printout
+	/* Assign displacements to Varcoord variables */
+	for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++){
+		for (iVertex = 0; iVertex < boundary->nVertex[iMarker]; iVertex++) {
+			/* Get the ID of the current node */
+			iPoint=boundary->vertex[iMarker][iVertex]->GetNode(); 
+			 // Check if the node has been updated already 
+			if ((iPoint<boundary->GetnPointDomain()) && UpdatePoint[iPoint]){
+				VarCoord[0] = 0.0; VarCoord[1] = 0.0; VarCoord[2] = 0.0;
+				if (config->GetMarker_All_DV(iMarker) == YES) {
 
+				printf("%e \t %e \t %e \n",disp[iVertex][0],disp[iVertex][1],disp[iVertex][2]);
 
+				for (int iDim=0; iDim<boundary->GetnDim();iDim++){
+					VarCoord[iDim]=disp[iVertex][iDim];
+				}
+		
+				}
 
-				boundary->vertex[iMarker][iVertex]->AddVarCoord(VarCoord);
-				UpdatePoint[iPoint]=false;
+			boundary->vertex[iMarker][iVertex]->AddVarCoord(VarCoord);
+			UpdatePoint[iPoint]=false;
 				}
 			}
 			
 		}
-		ipf1.close();
 	}
-}
 
-/* ph 16 Jan end */
+/* ph 26 Jan end */
 
 
 
