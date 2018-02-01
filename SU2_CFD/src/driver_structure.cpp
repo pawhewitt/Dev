@@ -215,12 +215,20 @@ CDriver::CDriver(char* confFile,
 	       // Why node-> not vertex-> as it is in SU2_DOT? 
 	          coord=geometry_container[0][0]->node[iPoint]->GetCoord();
             normal=geometry_container[0][0]->vertex[iMarker][iVertex]->GetNormal();
-            // Export Geometry, creating empty dimension if need be
+            /* Export Geometry and Normal
+            Assuming a 2D model in the xy plane where its chord will lie along the x axis
+            and a 3D model will be created with chord along the x and span along the y. */
             Design_File<<coord[0]<<"\t"<<coord[1]<<"\t";
-            if (geometry_container[0][0]->GetnDim()==3) Design_File<<coord[2]<<"\n";
-            else Design_File<<"0.0"<<"\t";
-            // Export y normal
-            Design_File<<normal[1]<<"\n";
+            if (geometry_container[0][0]->GetnDim()==3) {
+            	Design_File<<coord[2]<<"\t";
+            	// export z normal
+            	Design_File<<normal[2]<<"\n";
+            }
+            else {
+            	Design_File<<"0.0"<<"\t";
+            	// Export y normal
+            	Design_File<<normal[1]<<"\n";
+          	}
           }
 	      }
 	    }
