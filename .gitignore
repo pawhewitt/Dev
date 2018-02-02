@@ -54,3 +54,4 @@ SU2_DIRECTDIFF/
 # ignore the bin/ directory
 bin/
 
+configure_shell.sh
