@@ -287,11 +287,7 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
   }
   
   /*--- Structure to store Geometric Sensitivities  phewitt 30th Jan 2018 start ---*/
-  // 2D array structure
-  // GeoSens= new su2double*[nDV];
-  // for (int i=0;i<nDV;i++){
-  // 	GeoSens[i]= new su2double[geometry->GetnPoint()];
-  // }
+
   // 2D vector structure
   vector<double> GeoSens1;
   vector<vector<double> > GeoSens(nDV,GeoSens1);
@@ -504,7 +500,6 @@ void SetProjection_FD(CGeometry *geometry, CConfig *config, CSurfaceMovement *su
                   dalpha_deps -= dalpha[iDim]*deps[iDim];
                 }
                 /* Store Geometric Sensitivities */                
-                //GeoSens[iDV][iPoint]=dalpha_deps;
                 GeoSens[iDV].push_back(dalpha_deps);
 
                 my_Gradient += Sensitivity*dalpha_deps;

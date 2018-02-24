@@ -5463,27 +5463,25 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
   	/* Changes P.Hewitt - Start */
 	/* Order of Polynomial, assumes same order for both surfaces */
 
-
 	if (config->GetParamDV(iDV, 0) == NO) { upper = false;}
 	if (config->GetParamDV(iDV, 0) == YES) { upper = true;}
 
  	su2double BPO=((config->GetnDV())/2)-1;
-    /* Get Weights  and add design variable value to the associated weight*/
-    /* Note that only the surface corresponding to the current design variable is evaluated */
+    /* Get Weights and add design variable value to the associated weight*/
     /* It's assumed that there is an equal number of variables for each surface */ 
     su2double A[config->GetnDV()/2];
     su2double iparam;
     /* Get the weights for the current surface */
     for (int i=0,j=0;i<config->GetnDV();i++){
-      /* If current dv's surface param is upper, get the other upper weights */
-    	if ((upper) && (config->GetParamDV(i,0)==1)){
+      /* Group Variables according to the surface they apply to*/
+    	if ((upper) && (config->GetParamDV(i,0)==1)){ // Upper 
     		A[j]=config->GetParamDV(i,1);
     		if (i==iDV){
     			A[j]+=config->GetDV_Value(iDV);
     		}
     		j++;
 
-    	}else if ((!upper) && (config->GetParamDV(i,0)==0)){
+    	}else if ((!upper) && (config->GetParamDV(i,0)==0)){ // Lower
     		A[j]=config->GetParamDV(i,1);
     		if (i==iDV){
     			A[j]-=config->GetDV_Value(iDV);
@@ -5526,7 +5524,7 @@ void CSurfaceMovement::SetCST(CGeometry *boundary, CConfig *config, unsigned sho
 
 
 		        /*--- Start Direct CST computation --- */
-		        /* Evaluate the Class function */
+		        /* Evaluate the Class function using the x coords of the surface points */
 			        su2double n1, n2, Cl;       
 					n1 = 0.5;
 					n2 = 1.0;
